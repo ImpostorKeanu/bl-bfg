@@ -4,7 +4,7 @@ from smb.SMBConnection import SMBConnection
 import re
 import string
 from random import randint,choice
-from BruteLoops.example.module import Module as BLModule
+from bfg.module import Module as BLModule
 
 def gen_client_name(min_len=5,max_len=15):
     '''Generate a random client name.

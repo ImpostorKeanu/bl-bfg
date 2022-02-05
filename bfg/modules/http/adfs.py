@@ -1,6 +1,6 @@
 import requests
-from BruteLoops.example.module import Module as BModule
-from BruteLoops.example.shortcuts.http import Module,HTTPModule
+from bfg.module import Module as BModule
+from bfg.shortcuts.http import Module,HTTPModule
 from logging import getLogger,INFO
 from time import sleep
 

@@ -5,7 +5,7 @@ import re
 import requests
 import logging
 from logging import getLogger, INFO
-from BruteLoops.example.module import Module as BLModule
+from bfg.module import Module as BLModule
 
 # Get the brute force logger
 log = getLogger('BruteLoops.example.modules.http.sap_webdynpro')

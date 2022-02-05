@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 from re import search
 import requests
-from BruteLoops.example.shortcuts.http import HTTPModule
+from bfg.shortcuts.http import HTTPModule
 import pdb
 
 class Module(HTTPModule):

@@ -1,9 +1,9 @@
-from BruteLoops import data
-from BruteLoops.example.module import Module
+from bfg import data
+from bfg.module import Module
 import warnings
 from urllib.parse import urlparse
 import re
-from BruteLoops.db_manager import csv_split
+from bruteloops.db_manager import csv_split
 from functools import wraps
 from random import randint
 from inspect import getargspec
@@ -28,7 +28,7 @@ PROXY_URI_RE=re.compile('^(http|https|socks5)://(.+):[0-9]{1,5}')
 def handleUA(f):
     '''A decorator to handle user agent strings, supporting a
     randomization capability. If the string is "RANDOM", then
-    a random value will be selected from BruteLoops.data.UAS.
+    a random value will be selected from bruteloops.data.UAS.
     See that module to learn where random values originate
     from.
     '''

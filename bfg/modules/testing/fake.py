@@ -1,4 +1,4 @@
-from BruteLoops.example.module import Module as BLModule
+from bfg.module import Module as BLModule
 
 # ==================
 # BUILD THE CALLBACK

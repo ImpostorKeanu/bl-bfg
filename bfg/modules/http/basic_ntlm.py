@@ -4,7 +4,7 @@ warnings.filterwarnings('ignore')
 from re import search
 import requests
 from requests_ntlm import HttpNtlmAuth
-from BruteLoops.example.module import Module as BLModule
+from bfg.module import Module as BLModule
 
 class Module(BLModule):
 

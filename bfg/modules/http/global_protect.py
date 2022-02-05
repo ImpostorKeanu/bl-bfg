@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 from re import search,match,compile
 import requests
-from BruteLoops.example.module import Module as BLModule
+from bfg.module import Module as BLModule
 
 
 '''

@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 from re import search
 import requests
-from BruteLoops.example.module import Module as BLModule
+from bfg.module import Module as BLModule
 
 FAIL_VALUE = '"errorCode":"E0000004","errorSummary":"Authentication ' \
         'failed"'

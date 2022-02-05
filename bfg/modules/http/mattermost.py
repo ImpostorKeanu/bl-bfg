@@ -4,7 +4,7 @@ import requests
 import warnings
 import urllib
 warnings.filterwarnings('ignore')
-from BruteLoops.example.module import Module as BLModule
+from bfg.module import Module as BLModule
 
 '''
 # Notes

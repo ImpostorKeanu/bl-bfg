@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-import BruteLoops
-from BruteLoops.jitter import Jitter
-from BruteLoops.brute import BruteForcer
-from BruteLoops.config import Config
-from BruteLoops import logging
-from BruteLoops.logging import getLogger, GENERAL_EVENTS
-from BruteLoops.example import parser
+import bruteloops
+from bruteloops.jitter import Jitter
+from bruteloops.brute import BruteForcer
+from bruteloops.config import Config
+from bruteloops import logging
+from bruteloops.logging import getLogger, GENERAL_EVENTS
+from bfg import parser
 import traceback
 import argparse
 

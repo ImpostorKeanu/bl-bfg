@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import BruteLoops
-from BruteLoops.db_manager import *
-from BruteLoops import args as blargs
+import bruteloops
+from bruteloops.db_manager import *
+from bruteloops import args as blargs
 import argparse
 from sys import stderr
 from pathlib import Path
@@ -228,7 +228,7 @@ if __name__ == '__main__':
     # CONFIGURE LOGGING
     # =================
 
-    logger = BruteLoops.logging.getLogger('dbmanager.py',log_level=10)
+    logger = bruteloops.logging.getLogger('dbmanager.py',log_level=10)
     logger.info('Initializing database manager')
 
     # =======================

@@ -1,4 +1,4 @@
-from BruteLoops.args import *
+from bruteloops.args import *
 from pathlib import Path
 from importlib.util import spec_from_file_location, module_from_spec
 from importlib import import_module
@@ -39,7 +39,7 @@ for f in files:
     name = '.'.join(str(f.absolute()).split('/')[-2:])[:-3]
 
     # Import the module
-    module = import_module('BruteLoops.example.modules.'+name)
+    module = import_module('bfg.modules.'+name)
 
     # Validate the module and build the interface components
     module.Module.validate()

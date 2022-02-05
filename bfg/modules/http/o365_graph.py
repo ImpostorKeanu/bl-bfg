@@ -1,7 +1,7 @@
 from requests import Session
 import re
 import logging
-from BruteLoops.example.shortcuts.http import HTTPModule, handleUA
+from bfg.shortcuts.http import HTTPModule, handleUA
 
 from logging import getLogger,INFO
 

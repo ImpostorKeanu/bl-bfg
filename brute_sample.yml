@@ -1,0 +1,26 @@
+database: /tmp/test.db
+#manage-db:
+#  import-credential-values:
+#    - username1:password1
+#  import-spray-values:
+#    usernames:
+#      - username2
+#        username3
+#        username4
+#    passwords:
+#      - password2
+#        password3
+#        password4
+#  prioritize-values:
+#    un-prioritize: false
+#    usernames:
+#      - username3
+#        username4
+#    passwords:
+#      - password2
+brute-force:
+  module:
+    name: testing.fake
+    args:
+      username: username1
+      password: password1

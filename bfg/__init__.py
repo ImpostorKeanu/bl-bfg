@@ -22,9 +22,6 @@ parser = argparse.ArgumentParser(
                 'gainst a target service.',
         parents=[gp,jp,op,lp])
 
-# Add a default database argument (positional)
-parser.add_argument('dbfile', help='Input database file')
-
 # Initialize the subparsers object
 subparsers = parser.add_subparsers(title='Brute Force Modules',
         help='Brute Modules Help',

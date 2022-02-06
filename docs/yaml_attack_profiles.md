@@ -15,13 +15,15 @@ attack profile fields.
 
 ## Which keys are required?
 
-Unless the `brute-force` field is set, only the `database`
-field is required. If `brute-force` is set, then a `module`
+- Unless the `brute-force` field is set, only the `database`
+field is required.
+- If `brute-force` is set, then a `module`
 map must appear under `brute-force`.
 
 ## Must `manage-db` and `brute-force` appear in an attack profile?
 
-No, these mappings independent. Populating a DB via the CLI and
+- No, these mappings independent.
+- Populating a DB via the CLI and
 passing it to the `brute-force` command via attack profile is
 valid.
 

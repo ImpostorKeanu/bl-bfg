@@ -5,13 +5,9 @@ import setuptools
 with open('README.md', 'r', encoding='utf-8') as f:
     long_description = f.read()
 
-# Read in all requirements from requirements.txt
-with open('requirements.txt', 'r', encoding='utf-8') as f:
-    install_requires = [l.strip() for l in f]
-
 setuptools.setup(
     name='bl-bfg',
-    version='0.0.1',
+    version='0.1',
     author='Justin Angel',
     author_email='justin@arch4ngel.ninja',
     description='A simple password guessing framework.',
@@ -26,5 +22,7 @@ setuptools.setup(
         'Operating System :: POSIX :: Linux',
     ],
     python_requires='>=3.7',
-    install_requires=install_requires
+    install_requires=['requests_ntlm',
+        'bruteloops',
+        'pysmb==1.1.27']
 )

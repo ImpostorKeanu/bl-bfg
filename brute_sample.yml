@@ -1,24 +1,67 @@
 database: /tmp/test.db
-#manage-db:
-#  import-credential-values:
-#    - username1:password1
-#  import-spray-values:
-#    usernames:
-#      - username2
-#        username3
-#        username4
-#    passwords:
-#      - password2
-#        password3
-#        password4
-#  prioritize-values:
-#    un-prioritize: false
-#    usernames:
-#      - username3
-#        username4
-#    passwords:
-#      - password2
+manage-db:
+
+  # ===============
+  # DATABASE VALUES
+  # ===============
+
+  import-credential-values:
+
+    # credential-delimiter: ":"
+
+    credentials:
+      - username1:password1
+      - username2:password3
+
+    # credential-files:
+    #   - /tmp/credentials.txt
+    # csv-files:
+    #   - /tmp/credentials.csv
+
+  import-spray-values:
+
+    usernames:
+      - username2
+      - username3
+      - username4
+
+    # username-files:
+    #   - /tmp/usernames.txt
+    
+    passwords:
+      - password2
+      - password3
+      - password4
+
+    # password-files:
+    #   - /tmp/passwords.txt
+
+  prioritize-values:
+    prioritize: true
+    usernames:
+      - username3
+      - username4
+    passwords:
+      - password2
+
 brute-force:
+
+  # =====================
+  # ATTACK CONFIGURATIONS
+  # =====================
+
+  log-file: /tmp/test.log
+
+  stop-on-valid: false
+  parallel-guess-count: 4
+  auth-threshold: 2
+
+  auth-jitter-min: 1s
+  auth-jitter-max: 10s
+
+  threshold-jitter-min: 1m
+  threshold-jitter-max: 3m
+
   module:
     name: testing.fake
     args:

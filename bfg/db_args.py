@@ -61,7 +61,7 @@ def prioritize_values(args, logger, manager):
     '''Prioritize or unprioritize values
     '''
 
-    new_args = {'prioritize':not args.un_prioritize}
+    new_args = {'prioritize':args.prioritize}
 
     for handle in ['usernames','passwords']:
         if hasattr(args,handle): new_args[handle] = getattr(args,handle)
@@ -74,7 +74,8 @@ db_flag.add_argument('--database', '-db', help='Database to target.',
 
 # Default parser
 parser = argparse.ArgumentParser(
-        description='Manage BruteLoops input databases')
+        description='Manage BruteLoops input databases',
+        add_help=False)
 
 parser.set_defaults(cmd=handle_values,action=None)
 subparsers = parser.add_subparsers(help='SUBCOMMANDS:')

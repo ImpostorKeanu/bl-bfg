@@ -31,6 +31,24 @@ manager=None
 # Shared args variables
 args=None
 
+def findFile(path) -> Path:
+    '''Find a file by path and return a Path object.
+
+    Args:
+        path: String path to find.
+
+    Returns:
+        Path object pointing to the object.
+
+    Raises:
+        FileNotFoundError when path is not found.
+    '''
+
+    path = Path(path)
+    if not path.exists() and path.is_file():
+        raise FileNotFoundError(args.yaml_file)
+    return path
+
 def parseYml(f, key_checks:list=None) -> dict:
     '''Load an open YAML file into memory as a JSON object,
     ensure that each high-level key is supplied in key_checks,
@@ -64,6 +82,12 @@ def parseYml(f, key_checks:list=None) -> dict:
 def get_user_input(m:str) -> str:
     '''
     Simple input loop expecting either a "y" or "n" response.
+
+    Args:
+        m: String message that will be displayed to the user.
+
+    Returns:
+        str value supplied by the user.
     '''
 
     uinput = None
@@ -71,6 +95,75 @@ def get_user_input(m:str) -> str:
         uinput = input(m)
 
     return uinput
+
+def run_db_command(parser:argparse.ArgumentParser, args=None) -> None:
+    '''Run a database management command.
+
+    Args:
+        parser: An argument parser used to collect command arguments.
+        args: An optional list of string arguments that will be
+            passed to the parser upon parse.
+    '''
+
+    # ====================
+    # HANDLE THE ARGUMENTS
+    # ====================
+
+    if args:
+        args = parser.parse_args(args)
+    else:
+        args = parser.parse_args()
+    if not args.cmd:
+        parser.print_help()
+        exit()
+
+    # =================
+    # CONFIGURE LOGGING
+    # =================
+
+    logger = getLogger('bfg.dbmanager', log_level=10)
+    logger.info('Initializing database manager')
+
+    # =======================
+    # HANDLE MISSING DATABASE
+    # =======================
+
+    if not Path(args.database).exists():
+
+        cont = None
+
+        while cont != 'y' and cont != 'n':
+            
+            cont = input(
+                    '\nDatabase not found. Continue and create it? ' \
+                    '(y/n) '
+                )
+
+        if cont == 'n':
+
+            logger.info('Database not found. Exiting')
+            exit()
+
+        print()
+        logger.info(f'Creating database file: {args.database}')
+
+    # ======================
+    # INITIALIZE THE MANAGER
+    # ======================
+
+    try:
+        manager = Manager(args.database)
+    except Exception as e:
+        logger.info('Failed to initialize the database manager')
+        raise e
+
+    # ======================
+    # EXECUTE THE SUBCOMMAND
+    # ======================
+
+    logger.info(f'Executing command')
+    args.cmd(args, logger, manager)
+    logger.info('Execution finished. Exiting.')
 
 def handle_keyboard_interrupt(brute,exception):
 
@@ -90,7 +183,12 @@ def handle_keyboard_interrupt(brute,exception):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(title='Select Input Mode')
+    subparsers = parser.add_subparsers(title='Select Input Mode',
+        description='This determines how input '
+            'will be passed to BFG. "cli" indicates that inputs '
+            'will be provided at the command line, and "yaml" '
+            'indicates that input will be provided via YAML file.'
+    )
 
     # =====================
     # CLI INPUT SUBCOMMANDS
@@ -100,11 +198,13 @@ if __name__ == '__main__':
     cli_subparsers = cli_parser.add_subparsers(title='Select Mode')
 
     db_sp = cli_subparsers.add_parser('manage-db',
-        parents=[db_parser], add_help=False)
+        parents=[db_parser],
+        description='Manage the attack database.')
     db_sp.set_defaults(mode='db')
 
     brute_sp = cli_subparsers.add_parser('brute-force',
-        parents=[modules_parser], add_help=False)
+        parents=[modules_parser],
+        description='Perform a brute force attack.')
 
     brute_sp.set_defaults(mode='brute')
     brute_sp.add_argument('--database', '-db',
@@ -115,14 +215,11 @@ if __name__ == '__main__':
     # YML INPUT SUBCOMMANDS
     # =====================
 
-    yml_parser = subparsers.add_parser('yml')
-    yml_subparsers = yml_parser.add_subparsers(title='Select Mode')
-
-    brute_yaml_sp = yml_subparsers.add_parser('brute-force')
-    brute_yaml_sp.set_defaults(mode='brute-yaml')
-    brute_yaml_sp.add_argument('--yaml-file', '-yml',
+    yaml_parser = subparsers.add_parser('yaml')
+    yaml_parser.add_argument('--yaml-file', '-yml',
         required=True,
-        help='YAML file containing attack configuration parameters.')
+        help='YAML file containing db/attack configuration parameters.')
+    yaml_parser.set_defaults(mode='yaml')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -131,130 +228,126 @@ if __name__ == '__main__':
     # HANDLE YAML ARGUMENTS
     # =====================
 
-    if args.mode == 'brute-yaml':
+    if args.mode == 'yaml':
 
         # =====================
         # HANDLE THE FILE INPUT
         # =====================
 
-        path = Path(args.yaml_file)
-        if not path.exists():
-            raise FileNotFoundError(
-                f'YAML file not found: {args.yaml_file}')
+        path = findFile(args.yaml_file)
 
         with path.open() as yfile:
+            yargs = parseYml(yfile, key_checks=('database',))
 
-            args = parseYml(yfile, key_checks=('brute-force','database',))
-            _args = ['--database='+args['database']]
-            args = args['brute']
+        db_arg = '--database=' + yargs['database']
 
-            if not 'module' in args.keys():
+        db_args = yargs.get('manage-db', {})
+        bf_args = yargs.get('brute-force', {})
+
+        brute_cli_args = [db_arg]
+
+        # ================
+        # DO DB MANAGEMENT
+        # ================
+
+        if db_args:
+
+            for cmd, argset in db_args.items():
+
+                if not isinstance(argset, dict):
+
+                    raise ValueError(
+                        'All db-management subcommands should be '
+                        'configured with a dictionary of supporting ' 
+                        'arguments.')
+
+                _args = [cmd, db_arg]
+
+                for flag, values in argset.items():
+
+                    if isinstance(values, list):
+                        values = [str(v) for v in values]
+                    elif isinstance(values, bool):
+                        values = [str(values).lower()]
+                    else:
+                        values = [str(values)]
+
+                    _args += [f'--{flag}']+values
+
+                run_db_command(db_sp, _args)
+
+        # =====================
+        # DO BRUTE FORCE ATTACK
+        # =====================
+
+        if bf_args:
+
+
+            if not 'module' in bf_args.keys():
                 raise ValueError(
                     '"module" field must be set in the YAML file.')
-
+    
             # ====================================
             # TRANSLATE YAML TO ARGPARSE ARGUMENTS
             # ====================================
-
-            for k,v in args.items():
-
+    
+            for k,v in bf_args.items():
+    
                 if k != 'module':
-
+    
                     # =============================
                     # CAPTURE A NON-MODULE ARGUMENT
                     # =============================
 
-                    _args.append(
+                    if isinstance(v, bool):
+                        v = str(v).lower()
+    
+                    brute_cli_args.append(
                         FT.format(flag=k.replace("_","-"),
                             value=v))
-
+    
                 else:
-
+    
                     # =========================
                     # CAPTURE A MODULE ARGUMENT
                     # =========================
-
+    
                     if not 'name' in v:
-
+    
                         raise ValueError(
                             f'"name" field must be defined under "module".')
-
+    
                     elif not 'args' in v:
-
+    
                         raise ValueError(
                             f'"args" field must be defined under "module".')
-
-                    _args.append(v['name'])
+    
+                    brute_cli_args.append(v['name'])
                     
                     for ik, iv in v['args'].items():
-
-                        _args.append(
+    
+                        brute_cli_args.append(
                             FT.format(
                                 flag=ik.replace("_","-"),
                                 value=iv))
 
-        args = brute_sp.parse_args(_args)
+            print(brute_cli_args)
+            args = brute_sp.parse_args(brute_cli_args)
+            print(args)
 
     if args.mode == 'db':
 
-        # ====================
-        # HANDLE THE ARGUMENTS
-        # ====================
-    
-        args = parser.parse_args()
-        if not args.cmd:
-            parser.print_help()
-            exit()
-    
-        # =================
-        # CONFIGURE LOGGING
-        # =================
-    
-        logger = getLogger('dbmanager.py', log_level=10)
-        logger.info('Initializing database manager')
-    
-        # =======================
-        # HANDLE MISSING DATABASE
-        # =======================
-    
-        if not Path(args.database).exists():
-    
-            cont = None
-    
-            while cont != 'y' and cont != 'n':
-                
-                cont = input(
-                        '\nDatabase not found. Continue and create it? ' \
-                        '(y/n) '
-                    )
-    
-            if cont == 'n':
-    
-                logger.info('Database not found. Exiting')
-                exit()
-    
-            print()
-            logger.info(f'Creating database file: {args.database}')
-    
-        # ======================
-        # INITIALIZE THE MANAGER
-        # ======================
-    
-        try:
-            manager = Manager(args.database)
-        except Exception as e:
-            logger.info('Failed to initialize the database manager')
-            raise e
-    
-        # ======================
-        # EXECUTE THE SUBCOMMAND
-        # ======================
-    
-        logger.info(f'Executing command')
-        args.cmd(args, logger, manager)
-        logger.info('Execution finished. Exiting.')
+        # ========================
+        # ONE-OFF DATABASE COMMAND
+        # ========================
+
+        run_db_command(parser)
 
     if args.mode == 'brute':
+
+        # ===================
+        # BRUTE-FORCE COMMAND
+        # ===================
 
         if not hasattr(args, 'module'):
             raise Exception(

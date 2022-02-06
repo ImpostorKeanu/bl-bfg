@@ -20,7 +20,8 @@ parser = argparse.ArgumentParser(
                 'Select a brute force module and input database to ' \
                 'perform a highly configurable brute force attack a'
                 'gainst a target service.',
-        parents=[gp,jp,op,lp])
+        parents=[gp,jp,op,lp],
+        add_help=False)
 
 # Initialize the subparsers object
 subparsers = parser.add_subparsers(title='Brute Force Modules',

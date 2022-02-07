@@ -6,7 +6,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name='bfg',
+    name='bl-bfg',
     version='0.2',
     author='Justin Angel',
     author_email='justin@arch4ngel.ninja',

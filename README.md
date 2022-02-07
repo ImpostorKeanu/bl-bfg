@@ -25,6 +25,31 @@ brute force and database management logic.
   - YAML files can be used to supply configuration values to BFG
   - Avoids complex command line flags
 
+# Current Attack Modules
+
+Below are the attack modules currently in BFG.
+
+Most people will be interested in `http.o365_graph` as it can be used to attack
+`login.microsoftonline.com`.
+
+```
+http.accellion_ftp  Accellion FTP HTTP interface login module
+http.adfs           Active Directory Federated Services
+http.basic_digest   Generic HTTP basic digest auth
+http.basic_ntlm     Generic HTTP basic NTLM authentication
+http.global_protect Global Protect web interface
+http.lync           Brute force Microsoft Lync.
+http.mattermost     Mattermost login web interface
+http.netwrix        Netwrix web login
+http.o365_graph     Office365 Graph API
+http.okta           Okta JSON API
+http.owa2010        OWA 2010 web interface
+http.owa2016        OWA 2016 web interface
+http.sap_webdynpro  SAP Netweaver Webdynpro, ver. 7.3007.20120613105137.0000
+smb.smb             Target a single SMB server
+testing.fake        Fake authentication module for training/testing
+```
+
 # Supported Platforms
 
 Only Linux is supported at the moment, however a Docker implementation will

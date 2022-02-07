@@ -1,3 +1,0 @@
-requests_ntlm
-bruteloops
-pysmb==1.1.27

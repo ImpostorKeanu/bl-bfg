@@ -47,11 +47,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
     # Catch all for valid user accounts
     elif error_code not in VALID_USERNAME_CODES:
 
-        message = 'INVALID USERNAME - ' \
-            'This username will not be targeted for further ' \
-            'guesses.'
-
-        return 0, False, [message]
+        return 0, False, None
 
     # Raise an exception when a fatal error code is returned
     elif error_code in FATAL_CODES:

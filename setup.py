@@ -24,10 +24,12 @@ setuptools.setup(
     ],
     python_requires='>=3.7',
     scripts=['bfg'],
-    package_data={'bfg.datasets':['*.txt', '*.yaml']},
+    package_data={'bfg.datasets':['*.txt', '*.yaml', '*.xml']},
     install_requires=[
         'bruteloops >= 0.2',
         'requests_ntlm == 1.1.0',
         'pysmb == 1.1.27',
-        'pyyaml']
+        'pyyaml',
+        'xmltodict',
+        'dict-toolbox']
 )

@@ -1,4 +1,5 @@
 from bfg.module import Module as BLModule
+from bfg.args.testing import default
 
 # ==================
 # BUILD THE CALLBACK
@@ -16,10 +17,9 @@ class Module(BLModule):
     name = 'Fake'
     description = brief_description = 'Fake authentication module for ' \
             'training/testing'
+    args = default()
 
-    def __init__(self, # Use function annotations to describe parameters
-            username:'required:True,type:str,help:Username to check against',
-            password:'required:True,type:str,help:Password to check against'):
+    def __init__(self, username:str, password:str):
         '''Initialize the Fake object.
 
         - username - username value

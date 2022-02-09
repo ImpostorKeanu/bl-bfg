@@ -154,75 +154,9 @@ class Module:
 
         parser = subparsers.add_parser(cls.get_handle(),
                 description=cls.description,
-                help=cls.brief_description)
+                help=cls.brief_description,
+                parents=cls.args)
+
         parser.set_defaults(module=cls)
-
-        # ========================
-        # HANDLE EMPTY ANNOTATIONS
-        # ========================
-        
-        annotations = cls.__init__.__annotations__
-        if not annotations: return parser
-
-        # ============================
-        # BUILD HELP FOR THE INTERFACE
-        # ============================
-        
-        # Regular expression string that will be used to parse the
-        # argument information from the function annotation
-        ARGPARSE_SIG = re.compile(
-            '^required:(?P<required>True|False),'
-            'type:(?P<type>.+?),'
-            '(nargs:(?P<nargs>.+),)?'
-            'help:(?P<help>.+)'
-        )
-        
-        # Signature to derive default values for the parameters
-        sig = inspect.signature(cls.__init__)
-
-        # ========================================
-        # BUILD ALL ARGUMENTS FROM THE ANNOTATIONS
-        # ========================================
-        
-        for arg, str in annotations.items():
-
-            # Parse the annotation
-            match = re.match(ARGPARSE_SIG, str)
-
-            # Throw an error when parsing fails
-            if not match:
-                raise ValueError(
-                        f'Error parsing help string for module {__file__}: ' \
-                        f'{str}')
-        
-            # Translate the match to a dictionary
-            dct = match.groupdict()
-        
-            # Convert the "required" element to a boolean
-            dct['required'] = True if dct['required'] == 'True' else False
-        
-            # Handle the default value
-            default = sig.parameters[arg].default
-
-            # Ensure the default isn't empty
-            default = default if default != \
-                    inspect.Parameter.empty else None
-
-            if default: dct['default']=default
-        
-            # Create the help string
-            dct['help']= ('required' if dct['required'] else 'optional') + \
-                f' - {dct["type"]} - {dct["help"]}'
-            del(dct['type'])
-
-            if 'default' in dct: dct['help']+= f' Default: {dct["default"]}'
-
-            # Handle nargs
-            if 'nargs' in dct and dct['nargs']:
-                # TODO: Update this to support other values
-                dct['nargs'] = '+'
-
-            # Add the argument to the parser
-            parser.add_argument(f'--{arg.replace("_","-")}', **dct)
 
         return parser

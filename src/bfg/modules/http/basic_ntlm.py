@@ -1,28 +1,19 @@
-#!/usr/bin/env python3
 import warnings
 warnings.filterwarnings('ignore')
-from re import search
 import requests
 from requests_ntlm import HttpNtlmAuth
-from bfg.module import Module as BLModule
+from bfg.args import http as http_args
+from bfg.shortcuts.http import HTTPModule, handleUA
 
-class Module(BLModule):
+class Module(HTTPModule):
 
     name = 'http.basicntlm'
     description = 'This module allows one to brute force web ' \
             'applicaitons using basic NTLM authentication.'
     brief_description = 'Generic HTTP basic NTLM authentication'
+    args = http_args.getDefaults()
 
-    def __init__(self, url:'required:True,type:str,help:Target URL',
-            proxies:'required:False,type:str,help:Upstream proxies'={},
-            headers:'required:False,type:str,help:HTTP headers'={},
-            verify_ssl:'required:False,type:bool,help:Verify SSL'=False):
-
-        self.url = url
-        self.proxies = proxies
-        self.verify_ssl = verify_ssl
-        self.headers = headers
-
+    @handleUA
     def __call__(self,username,password,*args,**kwargs):
     
         # make the request

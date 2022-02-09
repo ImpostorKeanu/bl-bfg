@@ -13,7 +13,8 @@ from sys import exit
 from bfg import parser as modules_parser
 from bfg.db_args import parser as db_parser
 
-FT = FLAG_TEMPLATE = '--{flag}={value}'
+BFT = BASE_FLAG_TEMPLATE = '--{flag}'
+FT = FLAG_TEMPLATE = BFT+'={value}'
 AART = \
 '''           _               _          _
           / /\            /\ \       /\ \      
@@ -292,14 +293,15 @@ if __name__ == '__main__':
 
                 for flag, values in argset.items():
 
-                    if isinstance(values, list):
-                        values = [str(v) for v in values]
-                    elif isinstance(values, bool):
-                        values = [str(values).lower()]
+                    if values is None:
+                        _args.append(BFT.format(flag=flag))
                     else:
-                        values = [str(values)]
+                        if isinstance(values, list):
+                            values = [str(v) for v in values]
+                        else:
+                            values = [str(values)]
 
-                    _args += [f'--{flag}']+values
+                        _args += [BFT.format(flag=flag)]+values
 
                 run_db_command(db_sp, _args)
 
@@ -326,12 +328,14 @@ if __name__ == '__main__':
                     # CAPTURE A NON-MODULE ARGUMENT
                     # =============================
 
-                    if isinstance(v, bool):
-                        v = str(v).lower()
-    
-                    brute_cli_args.append(
-                        FT.format(flag=k.replace("_","-"),
-                            value=v))
+                    if v is None:
+                        brute_cli_args.append(
+                            BFT.format(flag=k)
+                        )
+                    else:
+                        brute_cli_args.append(
+                            FT.format(flag=k.replace("_","-"),
+                                value=v))
     
                 else:
     
@@ -352,6 +356,11 @@ if __name__ == '__main__':
                     brute_cli_args.append(v['name'])
                     
                     for ik, iv in v['args'].items():
+
+                        # Convert list arguments back to a 
+                        # space delimited string value
+                        if isinstance(iv, list):
+                            iv = ' '.join(iv)
     
                         brute_cli_args.append(
                             FT.format(
@@ -365,6 +374,10 @@ if __name__ == '__main__':
         # ========================
         # ONE-OFF DATABASE COMMAND
         # ========================
+
+        if not hasattr(args,'database'):
+            db_parser.print_help()
+            exit()
 
         run_db_command(parser)
 
@@ -419,10 +432,10 @@ if __name__ == '__main__':
         
         try:
         
-            logger.log(GENERAL_EVENTS,'Initializing attack')
+            logger.info('Initializing attack')
             bf = BruteForcer(config)
             bf.launch()
-            logger.log(GENERAL_EVENTS,'Attack complete')
+            logger.info('Attack complete')
             
         except Exception as e:
 
@@ -430,5 +443,6 @@ if __name__ == '__main__':
                 '\n\nUnhandled exception occurred. This is generally '
                 'an indicator of an error/oversight in the attack '
                 'module.\n\n\n'
+                f'{e}\n\n'
                 f'Error Cause:\n\n{e.__cause__}\n\n')
 

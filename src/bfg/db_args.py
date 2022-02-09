@@ -1,5 +1,5 @@
 from bruteloops import args as blargs
-from bruteloops.logging import getLogger
+from logging import getLogger
 import argparse
 
 logger = getLogger('bfg.db_cmd')
@@ -67,6 +67,16 @@ def prioritize_values(args, logger, manager):
         if hasattr(args,handle): new_args[handle] = getattr(args,handle)
 
     manager.manage_priorities(**new_args)
+
+def disable_usernames(args, logger, manager):
+
+    logger.info(f'Disabling usernames: {args.usernames}')
+    manager.disable_username_records(container=args.usernames)
+
+def enable_usernames(args, logger, manager):
+
+    logger.info(f'Enabling usernames: {args.usernames}')
+    manager.enable_username_records(container=args.usernames)
 
 db_flag = argparse.ArgumentParser()
 db_flag.add_argument('--database', '-db', help='Database to target.',
@@ -197,6 +207,10 @@ parser_delete_credentials = subparsers.add_parser(
 parser_delete_credentials.set_defaults(as_credentials=True,
         action='delete')
 
+# ============================
+# PRIORITIZE VALUES SUBCOMMAND
+# ============================
+
 parser_prioritize_values = subparsers.add_parser(
         'prioritize-values',
         description='Prioritize username/password values',
@@ -205,3 +219,41 @@ parser_prioritize_values = subparsers.add_parser(
         add_help=False)
 parser_prioritize_values.set_defaults(
         cmd=prioritize_values)
+
+# ==================================
+# DISABLE USERNAME VALUES SUBCOMMAND
+# ==================================
+
+parser_disable_usernames = subparsers.add_parser(
+    'disable-usernames',
+    description='Disable usernames, removing them from further'
+        'guesses.',
+    help='Disable usernames from further guesses.',
+    parents=[db_flag],
+    add_help=False)
+parser_disable_usernames.set_defaults(cmd=disable_usernames)
+
+parser_disable_usernames.add_argument('--usernames', '-u',
+    help='Usernames to disabled',
+    required=True,
+    nargs='+')
+
+# =================================
+# ENABLE USERNAME VALUES SUBCOMMAND
+# =================================
+
+parser_enable_usernames = subparsers.add_parser(
+    'enable-usernames',
+    description='Enable usernames, allowing them to be targeted'
+        'guesses.',
+    help='Enable usernames from further guesses.',
+    parents=[db_flag],
+    add_help=False)
+parser_enable_usernames.set_defaults(cmd=enable_usernames)
+
+parser_enable_usernames.add_argument('--usernames', '-u',
+    help='Usernames to enable.',
+    required=True,
+    nargs='+')
+
+

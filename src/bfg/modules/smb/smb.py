@@ -5,6 +5,7 @@ import re
 import string
 from random import randint,choice
 from bfg.module import Module as BLModule
+from bfg.args import argument
 
 def gen_client_name(min_len=5,max_len=15):
     '''Generate a random client name.
@@ -16,21 +17,60 @@ def gen_client_name(min_len=5,max_len=15):
                 [choice(string.ascii_letters+string.digits) for n in range(32)]
             )
 
+@argument
+def server_ip(name_or_flags=('--server-ip',),
+        required=True,
+        help='IP address of the SMB server to target. '
+            'Required: %(required)s'):
+    pass
+
+@argument
+def server_name(name_or_flags=('--server-name',),
+        help='Server hostname. Default: %(default)s',
+        default=None):
+    pass
+
+@argument
+def server_port(name_or_flags=('--server-port',),
+        help='Server port. Default: %(default)s',
+        default=445):
+    pass
+
+@argument
+def client_name(name_or_flags=('--client-name',),
+        help='Client name. Default: %(default)s',
+        default=None):
+    pass
+
+@argument
+def default_domain(name_or_flags=('--default-domain',),
+        default='WORKGROUP',
+        help='Default workgroup name when domain is not provided'
+            'with a username. Default: %(default)s'):
+    pass
+
+
 class Module(BLModule):
     '''Defining the callback
     '''
 
-    name = 'SMB' # For logging
-    brief_description = description = 'Target a single SMB server'
+    name = 'smb.smb'
 
-    def __init__(self,
-            server_ip:'required:True,type:str,help:IP address of the SMB server ' \
-                    'authenticate against',
-            server_name:'required:False,type:str,help:Server hostname'=None,
-            server_port:'required:False,type:int,help:Port of SMB service'=445,
-            client_name:'required:False,type:str,help:Client name'=None,
-            default_domain:'required:False,type:str,help:Default WORKGROUP name when ' \
-                    'domain isn\'t provided in a username'='WORKGROUP'):
+    brief_description = description = 'Target a single SMB server.'
+
+    args = [server_ip(), server_name(), server_port(), client_name(),
+            default_domain()]
+
+    contributors = [
+            dict(
+                name='Justin Angel [Creator]',
+                additional=dict(
+                    company='Black Hills Information Security',
+                    twitter='@ImposterKeanu'))
+        ]
+
+    def __init__(self, server_ip, server_name, server_port,
+            client_name, default_domain):
         '''Initialize the SMB Callback.
         '''
 

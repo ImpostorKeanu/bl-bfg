@@ -1,5 +1,6 @@
 from bfg import data
 from bfg.module import Module
+from bfg.args.http import getDefaults as defaultHTTPArgs
 import warnings
 from urllib.parse import urlparse
 import re
@@ -60,54 +61,17 @@ def handleUA(f):
 
 class HTTPModule(Module):
 
-    # TODO
-    '''Convert this monstrosity of an idea with strings embedded in
-    the function annotations to a dictionary. I was clearly high when
-    this design decision was made.
-    '''
+    args = defaultHTTPArgs()
 
-    def __init__(self,
-            url:'required:True,'
-                'type:str,'
-                'help:URL to target',
-            proxies:'required:False,'
-                'type:str,'
-                'nargs:+,'
-                'help:Space delimited proxies to use. Each value '
-                'should be in URL format prefixed by the proxy protoco'
-                'l. If you\'re proxying an HTTPS application through B'
-                'urp, for instance, then you would need to prefix the '
-                'target application URL with "http:", e.g. http:https:'
-                '//myproxy.ninja'=None,
-            headers:'required:False,'
-                'type:str,'
-                'nargs:+,'
-                'help:Space delimited static HTTP headers to pass alo'
-                'ng to each request. Note that each header must be fo'
-                'rmatted as follows: "Header: value". The ": " sequen'
-                'e is used to identify the break between the header a'
-                'nd the value. Example > X-Forwarded-For: localhost' \
-                    =None,
-            verify_ssl:'required:False,'
-                'type:bool,'
-                'help:Verify SSL cert'=False,
-            user_agent:'required:False,'
-                'type:str,'
-                'help:User-agent string'=DEFAULT_USER_AGENT,
-            allow_redirects:'required:False,'
-                'type:bool,'
-                'help:Determine if requests should follow redirects.'\
-                    =False,
-            *args, **kwargs):
+    def __init__(self, url, proxies, headers, verify_ssl, user_agent,
+            allow_redirects, *args, **kwargs):
         '''Update the __init__ method of a class with a signature for common
         arguments that are passed to the Requests module, facilitating rapid
         development of brute force modules.
-
-        WARNING: This is an method decorator expecting the initial argument
-        to be "self"
         '''
 
         self.url = url
+
         self.proxies = {}
         self.headers = {}
         self.user_agent = user_agent

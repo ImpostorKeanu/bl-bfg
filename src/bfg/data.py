@@ -5,9 +5,28 @@
 from pathlib import Path
 from logging import getLogger
 
-log = getLogger('BruteLoops.data')
+log = getLogger('bfg.data')
 
+DATASETS_PATH = Path(__file__).parent / 'datasets'
 USER_AGENT_STRINGS = UAS = []
+
+# =========================================
+# LOAD THE AZURE SSO SOAP FILE INTO MEMEORY
+# =========================================
+
+AZURE_SSO_SOAP_FILE = DATASETS_PATH / 'azure_sso_soap.xml'
+
+def loadAzureSSOSoap(path:str=None, force=False) -> None:
+
+
+    path = Path(path) if path else AZURE_SSO_SOAP_FILE
+
+    with AZURE_SSO_SOAP_FILE.open() as f:
+        return f.read()
+
+# ================
+# LOAD USER AGENTS
+# ================
 
 def loadUserAgents(path:str=None, force=False) -> None:
     '''Load user agent strings from the datasets directory into
@@ -26,12 +45,11 @@ def loadUserAgents(path:str=None, force=False) -> None:
     if UAS and not force:
         return
 
-    path = path if path else Path(__file__).parent / 'datasets/ua_strings.txt'
-
+    path = Path(path) if path else DATASETS_PATH / 'ua_strings.txt'
 
     if not path.exists():
 
-        log.log(60, f'Fatal: User agent string source missing!')
+        log.general(f'Fatal: User agent string source missing!')
 
         raise FileNotFoundError(
             'Source for user agent strings source was not found: ' +

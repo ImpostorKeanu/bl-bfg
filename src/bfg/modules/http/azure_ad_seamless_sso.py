@@ -124,6 +124,8 @@ class Session(Session):
 
             try:
                 error_code = error_code.split(':')[0]
+            except:
+                pass
 
             outcome, username_valid, events = \
                 lookupCode(resp.status_code, error_code)

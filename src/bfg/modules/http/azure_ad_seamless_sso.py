@@ -114,7 +114,7 @@ class Session(Session):
             # BASIC SUCCESS RESPONSE
             # ======================
 
-            return 1, True, None
+            return 1, True, ['200 OK response']
 
         elif error_code:
 
@@ -129,6 +129,10 @@ class Session(Session):
                 events[0] += f' - {credential}'
 
             return outcome, username_valid, events
+
+        else:
+
+            return -1, True, ['Unhandled response event occurred'] 
 
 def url():
 

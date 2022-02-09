@@ -78,9 +78,9 @@ class Session(Session):
         else:
 
             if resp.status_code == 200:
-                return 1, True, None
+                return 1, True, ['200 OK response']
             else:
-                return -1, True, None
+                return -1, True, ['Unhandled response event occurred']
 
 def url():
 

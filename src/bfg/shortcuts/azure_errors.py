@@ -47,6 +47,11 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
         return -1, True, [message]
 
     # Catch all for valid user accounts
+    elif error_code in VALID_USERNAME_CODES:
+
+        return 0, True, None
+
+    # Catch all for invalid user accounts
     elif error_code not in VALID_USERNAME_CODES:
 
         return 0, False, None
@@ -63,7 +68,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
     # ==================================================================
 
     message += 'Unhandled error code!'
-    return -1, False, [message]
+    return -1, True, [message]
 
 # A list of code values known to be associated with responses for
 # valid credentials

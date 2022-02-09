@@ -122,6 +122,9 @@ class Session(Session):
             # ALL OTHER RESPONSES
             # ===================
 
+            try:
+                error_code = error_code.split(':')[0]
+
             outcome, username_valid, events = \
                 lookupCode(resp.status_code, error_code)
 

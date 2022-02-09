@@ -1,12 +1,12 @@
 import re
 import inspect
 from bfg.data import loadAzureSSOSoap
-from bfg.args import http as http_args
 from datetime import datetime, timedelta
 from xmltodict import parse as xmltodict
 from requests import Session
 from dict_tools.data import subdict_match, traverse_dict
 from uuid import uuid4 as uuid
+from bfg.args import http as http_args
 from bfg.shortcuts.http import HTTPModule, handleUA
 from bfg.shortcuts.azure_errors import *
 from requests.exceptions import ConnectionError

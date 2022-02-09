@@ -12,6 +12,13 @@ class Module(HTTPModule):
             'applicaitons using basic NTLM authentication.'
     brief_description = 'Generic HTTP basic NTLM authentication'
     args = http_args.getDefaults()
+    contributors = [
+            dict(
+                name='Justin Angel [Creator]',
+                additional=dict(
+                    company='Black Hills Information Security',
+                    twitter='@ImposterKeanu'))
+        ]
 
     @handleUA
     def __call__(self,username,password,*args,**kwargs):

@@ -49,12 +49,12 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
     # Catch all for valid user accounts
     elif error_code in VALID_USERNAME_CODES:
 
-        return 0, True, None
+        return 0, True, [message+'VALID USERNAME']
 
     # Catch all for invalid user accounts
     elif error_code not in VALID_USERNAME_CODES:
 
-        return 0, False, None
+        return 0, False, [message+'INVALID USERNAME']
 
     # Raise an exception when a fatal error code is returned
     elif error_code in FATAL_CODES:

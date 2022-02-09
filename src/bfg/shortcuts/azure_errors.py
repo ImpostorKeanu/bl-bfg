@@ -48,7 +48,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
     elif error_code not in VALID_USERNAME_CODES:
 
         message = 'INVALID USERNAME - ' \
-            'This username will not be targeted for further '
+            'This username will not be targeted for further ' \
             'guesses.'
 
         return 0, False, [message]

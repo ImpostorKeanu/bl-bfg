@@ -70,7 +70,8 @@ class Session(Session):
             outcome, username_valid, events = \
                 lookupCode(resp.status_code, error_code)
 
-            events[0] += f' - {credential}'
+            if events:
+                events[0] += f' - {credential}'
 
             return outcome, username_valid, events
 

@@ -122,7 +122,12 @@ class Session(Session):
             # ALL OTHER RESPONSES
             # ===================
 
-            return lookupCode(resp.status_code, error_code)
+            outcome, username_valid, events = \
+                lookupCode(resp.status_code, error_code)
+
+            events[0] += f' - {credential}'
+
+            return outcome, username_valid, events
 
 def url():
 

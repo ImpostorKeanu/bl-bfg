@@ -25,7 +25,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
     # Handle valid credentials
     if status_code == 200 or error_code in VALID_CODES:
 
-        message = f'VALID CREDENTIALS: {username}:{password} - REASON - '
+        message = f'VALID CREDENTIALS - REASON - '
 
         if error_code in VALID_CODES:
             message += ERROR_CODES[error_code]
@@ -38,18 +38,18 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
     # Handle locked account but don't fatally close
     elif error_code == 'AADSTS50053':
 
-        message = 'INVALID CREDENTIALS: ' \
-            f'{username}:{password} - Smart Lock. Will ' \
+        message = 'INVALID CREDENTIALS - ' \
+            f'Smart Lock - Will ' \
             'attempt credentials during next iteration.'
 
         return -1, True, [message]
 
     # Catch all for valid user accounts
-    elif error_code in VALID_USERNAME_CODES:
+    elif error_code not in VALID_USERNAME_CODES:
 
-        message = 'INVALID USERNAME: ' \
-            f'{username}:{password} - This username will not be ' \
-            'targeted for further guesses.'
+        message = 'INVALID USERNAME - ' \
+            'This username will not be targeted for further '
+            'guesses.'
 
         return 0, False, [message]
 

@@ -45,6 +45,8 @@ class Session(Session):
         '''Authenticate the credentials via the Graph API.
         '''
 
+        credential = f'{username}:{password}'
+
         # Create the POST data
         data = {'resource':'https://graph.windows.net',
             'client_id':'1b730954-1685-4b74-9bfd-dac224a7b894',
@@ -65,7 +67,12 @@ class Session(Session):
         if error_code:
 
             error_code = error_code.groups()[0]
-            return lookupCode(resp.status_code, error_code)
+            outcome, username_valid, events = \
+                lookupCode(resp.status_code, error_code)
+
+            events[0] += f' - {credential}'
+
+            return outcome, username_valid, events
 
         else:
 

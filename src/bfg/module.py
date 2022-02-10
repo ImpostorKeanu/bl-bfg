@@ -133,7 +133,7 @@ class Module:
     def get_handle(cls):
         '''Return a simple string to use as a module identifier.
         '''
-        return '.'.join(cls.__module__.split('.')[-2:])
+        return '.'.join(cls.__module__.split('.')[-3:][:2])
 
     @classmethod
     def build_interface(cls,

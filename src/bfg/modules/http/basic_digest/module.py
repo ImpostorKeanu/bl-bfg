@@ -22,6 +22,7 @@ class Module(HTTPModule):
                     twitter='@ImposterKeanu'))
         ]
 
+    @handleUA
     def __call__(self,username,password,*args,**kwargs):
 
         if self.blank_handler(username): username = ''

@@ -34,7 +34,7 @@ subparsers = parser.add_subparsers(title='Brute Force Modules',
 for f in files:
 
     # Create the name for the module and subcommand
-    name = '.'.join(str(f.absolute()).split('/')[-2:])[:-3]
+    name = '.'.join(str(f.absolute()).split('/')[-3:]).strip('.py')
 
     # Import the module
     module = import_module('bfg.modules.'+name)

@@ -1,10 +1,10 @@
 import re
+from random import randint
 from bfg.data import loadAzureSSOSoap
 from bfg.args import http as http_args
-from random import randint
 from bfg.shortcuts.http import HTTPModule, handleUA
-from . import o365_graph as graph
-from . import azure_ad_seamless_sso as sso
+from bfg.modules.http.o365_graph import module as graph
+from bfg.modules.http.azure_ad_seamless_sso import module as sso
 
 def msol_url():
     '''Return an argparse argument for the MSOL URL.
@@ -50,14 +50,12 @@ class Module(HTTPModule):
 
     references = []
 
-    def __init__(self, msol_url, azure_sso_url, proxies, headers,
-            verify_ssl, user_agent, allow_redirects, *args, **kwargs):
+    def __init__(self, msol_url, azure_sso_url, *args, **kwargs):
+
         self.msol_url = msol_url
         self.azure_sso_url = azure_sso_url
 
-        super().__init__(url=msol_url, proxies=proxies, headers=headers,
-            verify_ssl=verify_ssl, user_agent=user_agent,
-            allow_redirects=allow_redirects, *args, **kwargs)
+        super().__init__(url=msol_url, *args, **kwargs)
 
     @handleUA 
     def __call__(self, username, password, *args, **kwargs):

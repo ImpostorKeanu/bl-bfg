@@ -1,4 +1,3 @@
-
 from re import search
 import requests
 import warnings
@@ -80,6 +79,6 @@ class Module(HTTPModule):
         )
 
         if resp.text.find('invalid_credentials') > -1:
-            return [0,username,password]
+            return dict(outcome=0, username=username, password=password)
         else:
-            return [1,username,password]
+            return dict(outcome=1, username=username, password=password)

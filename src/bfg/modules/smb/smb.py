@@ -113,6 +113,6 @@ class Module(BLModule):
 
         if outcome:
             conn.close()
-            return (1,original_username,password,)
+            return dict(outcome=1, username=username, password=password)
         else:
-            return (0,original_username,password,)
+            return dict(outcome=0, username=username, password=password)

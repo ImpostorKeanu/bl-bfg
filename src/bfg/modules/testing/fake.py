@@ -18,6 +18,14 @@ class Module(BLModule):
     description = brief_description = 'Fake authentication module for ' \
             'training/testing'
     args = default()
+    contributors = [
+            dict(
+                name='Justin Angel [Creator]',
+                additional=dict(
+                    company='Black Hills Information Security',
+                    twitter='@ImposterKeanu'))
+        ]
+
 
     def __init__(self, username:str, password:str):
         '''Initialize the Fake object.
@@ -33,6 +41,6 @@ class Module(BLModule):
         'Check the provided username and password values'
    
         if username == self.username and password == self.password:
-            return [1,username,password]
+            return dict(outcome=1, username=username, password=password)
         else:
-            return [0,username,password]
+            return dict(outcome=0, username=username, password=password)

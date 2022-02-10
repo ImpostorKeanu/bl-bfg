@@ -3,6 +3,7 @@ import inspect
 from bfg.data import loadAzureSSOSoap
 from datetime import datetime, timedelta
 from xmltodict import parse as xmltodict
+from xml.sax.saxutils import escape as xEscape
 from requests import Session
 from dict_tools.data import subdict_match, traverse_dict
 from uuid import uuid4 as uuid
@@ -77,8 +78,8 @@ class Session(Session):
             created = created,
             expires = expires,
             token_id = str(uuid()),
-            username = username,
-            password = password)
+            username = xEscape(username),
+            password = xEscape(password))
 
         # ======================================
         # MAKE THE REQUEST AND HANDLE THE OUTPUT
@@ -147,17 +148,12 @@ def url():
         default=AZURE_SSO_URL,
         help='Azure SSO URL to target. Default: %(default)s')
 
-
 class Module(HTTPModule):
 
     name = 'http.azure_ad_seamless_sso'
-
     brief_description = 'Azure Active Directory AD Seamless SSO'
-
     description = 'Brute force the Azure AD SSO endpoint.'
-
     args = [url()]+http_args.getDefaults('url',invert=True)
-
     contributors = [
             dict(
                 name='Justin Angel [Creator]',
@@ -200,7 +196,5 @@ class Module(HTTPModule):
                 password=password,
                 actionable=valid_account,
                 events=events)
-
-
 
 

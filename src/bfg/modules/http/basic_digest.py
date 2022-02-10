@@ -37,9 +37,9 @@ class Module(HTTPModule):
     
         # verify credentials and return outcome
         if resp.status_code == 401:
-            return (0, username, password,)
+            return dict(outcome=0, username=username, password=password)
         else:
-            return (1, username, password,)
+            return dict(outcome=1, username=username, password=password)
     
     def blank_handler(self,value):
 

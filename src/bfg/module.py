@@ -152,10 +152,52 @@ class Module:
         with providing a mechanism to assign values to module parameters.
         '''
 
+        epilog = None
+        if hasattr(cls, 'contributors'):
+            epilog = 'Module Contributors:\n\n'
+
+            if not isinstance(cls.contributors, list):
+
+                raise ValueError(
+                    'Module contributors must be a list of dictionary '
+                    f'values, not {type(cls.contributors)}')
+
+            for cont in cls.contributors:
+
+                if not isinstance(cont, dict):
+
+                    raise ValueError(
+                        'contributor records must be dictionaries, '
+                        f'not {type(cont)}')
+
+                name = cont.get('name')
+                additional = cont.get('additional')
+
+                if not name:
+
+                    raise ValueError(
+                        'contributor records must have a "name" field')
+
+                epilog += f'- {name}'
+
+                if additional:
+
+                    if not isinstance(additional, dict):
+
+                        raise ValueError(
+                            'additional field of contributor records '
+                            f'must be a dict, not {type(additional)}')
+
+                    for k,v in additional.items():
+
+                        epilog += f'\n  {k}: {v}'
+
         parser = subparsers.add_parser(cls.get_handle(),
                 description=cls.description,
                 help=cls.brief_description,
-                parents=cls.args)
+                parents=cls.args,
+                formatter_class=argparse.RawDescriptionHelpFormatter,
+                epilog=epilog)
 
         parser.set_defaults(module=cls)
 

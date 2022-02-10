@@ -1,7 +1,9 @@
+from bfg.defaults import *
 import re
 
 # Compiled regex to match the keys of ERROR_CODES
-ERROR_CODE_RE = re.compile('.+(AADSTS[0-9]{5,})')
+#ERROR_CODE_RE = re.compile('.+(AADSTS[0-9]{5,})')
+ERROR_CODE_RE = re.compile('.+(AADSTS[0-9]+)')
 
 def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
     '''Accept an HTTP status code and Azure error code to determine
@@ -24,8 +26,11 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
 
     message = f'[{error_code}] - '
 
-    # Handle valid credentials
     if status_code == 200 or error_code in VALID_CODES:
+
+        # =================
+        # VALID CREDENTIALS
+        # =================
 
         message += f'VALID CREDENTIALS - REASON - '
 
@@ -35,40 +40,77 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
             message += 'No graph reason, indiciative of active/' \
                 'accessible account'
 
-        return 1, True, [message]
+        return CRED_VALID, USERNAME_VALID, [message]
 
-    # Handle locked account but don't fatally close
     elif error_code == 'AADSTS50053':
+
+        # =======================================
+        # ACCOUNT VALID, BUT SMARTLOCK IS ENGAGED
+        # =======================================
 
         message += 'INVALID CREDENTIALS - ' \
             f'Smart Lock - Will ' \
             'attempt credentials during next iteration.'
 
-        return -1, True, [message]
+        return CRED_FAILED, USERNAME_VALID, [message]
 
-    # Catch all for valid user accounts
+    elif error_code == 'AADSTS50034':
+
+        # ============
+        # UNKNOWN USER
+        # ============
+
+        message += 'User does not exist.'
+
+        return CRED_FAILED, USERNAME_INVALID, [message]
+
+    elif error_code == 'AADSTS50056':
+
+        # =======================================
+        # GOOD USER, BUT NO PASSWORD SET FOR USER
+        # =======================================
+
+        message += 'User exists but does not have a password in ' \
+            'Azure AD'
+
+        return CRED_FAILED, USERNAME_VALID, [message]
+
+    elif error_code == 'AADSTS80014':
+
+        # ====================================
+        # GOOD USER, PASSTHROUGH TIME EXCEEDED
+        # ====================================
+
+        message += 'User exists but pass-through time exceeded.'
+
+        return CRED_FAILED, USERNAME_VALID, [message]
+
     elif error_code in VALID_USERNAME_CODES:
 
-        return 0, True, None
+        # =======================================
+        # PASSWORD INVALID, BUT USERNAME IS VALID
+        # =======================================
 
-    # Catch all for invalid user accounts
-    elif error_code not in VALID_USERNAME_CODES:
+        return CRED_INVALID, USERNAME_VALID, None
 
-        return 0, False, [message+'INVALID USERNAME']
-
-    # Raise an exception when a fatal error code is returned
     elif error_code in FATAL_CODES:
+
+        # =============================
+        # SOMETHING WENT TERRIBLY WRONG
+        # =============================
 
         raise Exception(
             f'Graph Error Code: {error_code}: ' \
             f'{ERROR_CODES.get(error_code)}')
 
-    # ==================================================================
-    # OTHERWISE ASSUME THAT THE USERNAME IS INVALID AND THE GUESS FAILED
-    # ==================================================================
+    else:
 
-    message += 'Unhandled error code!'
-    return -1, True, [message]
+        # =============================
+        # SOMETHING WENT....EVEN WORSE?
+        # =============================
+
+        message += 'Unhandled Azure AD error code!'
+        return CRED_FAILED, True, [message]
 
 # A list of code values known to be associated with responses for
 # valid credentials
@@ -95,8 +137,9 @@ VALID_CODES = [
 
 VALID_USERNAME_CODES = [
     'AADSTS50126',
-    'AADSTS50056',
     'AADSTS50053',
+    'AADSTS50056',
+    'AADSTS80014',
 ]
 
 # A list of cade values that should throw an exception when detected

@@ -51,6 +51,6 @@ class Module(HTTPModule):
         '''
 
         if resp.status_code == 200 and resp.json()['access_token']:
-            return [1, username, password]
+            return dict(outcome=1, username=username, password=password)
         else:
-            return [0, username, password]
+            return dict(outcome=0, username=username, password=password)

@@ -13,6 +13,7 @@ from sys import exit
 from bfg import parser as modules_parser
 from bfg.db_args import parser as db_parser
 
+NBFT = NO_BASE_FLAG_TEMPLATE = '--no-{flag}'
 BFT = BASE_FLAG_TEMPLATE = '--{flag}'
 FT = FLAG_TEMPLATE = BFT+'={value}'
 AART = \
@@ -43,6 +44,20 @@ manager=None
 
 # Shared args variables
 args=None
+
+def ymlBoolToFlag(v):
+
+    if v == True:
+        return BFT.format(flag=k)
+    else:
+        return NBFT.format(flag=k)
+
+def ymlListToValue(v):
+
+    if isinstance(v, list):
+        return [str(_v) for _v in v]
+    else:
+        return [str(v)]
 
 def findFile(path) -> Path:
     '''Find a file by path and return a Path object.
@@ -293,13 +308,14 @@ if __name__ == '__main__':
 
                 for flag, values in argset.items():
 
-                    if values is None:
-                        _args.append(BFT.format(flag=flag))
+                    if isinstance(values, bool):
+
+                        _args.append(
+                            ymlBoolToFlag(values))
+
                     else:
-                        if isinstance(values, list):
-                            values = [str(v) for v in values]
-                        else:
-                            values = [str(values)]
+
+                        values = ymlListToValue(values)
 
                         _args += [BFT.format(flag=flag)]+values
 
@@ -328,34 +344,37 @@ if __name__ == '__main__':
                     # CAPTURE A NON-MODULE ARGUMENT
                     # =============================
 
-                    if v is None:
+                    if isinstance(v, bool):
+                        
                         brute_cli_args.append(
-                            BFT.format(flag=k)
-                        )
+                            ymlBoolToFlag(v))
+
                     else:
+
                         brute_cli_args.append(
-                            FT.format(flag=k.replace("_","-"),
-                                value=v))
+                            FT.format(flag=k, value=v))
     
                 else:
     
                     # =========================
                     # CAPTURE A MODULE ARGUMENT
                     # =========================
+
+                    name, args = v.get('name'), v.get('args')
     
-                    if not 'name' in v:
+                    if not name:
     
                         raise ValueError(
                             f'"name" field must be defined under "module".')
     
-                    elif not 'args' in v:
+                    elif not args:
     
                         raise ValueError(
                             f'"args" field must be defined under "module".')
     
-                    brute_cli_args.append(v['name'])
+                    brute_cli_args.append(name)
                     
-                    for ik, iv in v['args'].items():
+                    for ik, iv in args.items():
 
                         # Convert list arguments back to a 
                         # space delimited string value
@@ -417,9 +436,7 @@ if __name__ == '__main__':
         config.log_stdout = args.log_stdout
     
         # Log Levels
-        config.log_general = args.log_general
-        config.log_valid = args.log_valid
-        config.log_invalid = args.log_invalid
+        config.log_level = args.log_level
     
         # Configure an exception handler for keyboard interrupts    
         config.exception_handlers={KeyboardInterrupt:handle_keyboard_interrupt}

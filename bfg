@@ -64,9 +64,12 @@ def ymlBoolToFlag(flag:str, b:bool) -> str:
             f'b must be a bool, got {type(b)}')
 
     if b == True:
-        return BFT.format(flag=flag)
+        return BFT.format(flag=swapScore(flag))
     else:
-        return NBFT.format(flag=flag)
+        return NBFT.format(flag=swapScore(flag))
+
+def swapScore(v):
+    return v.replace('_','-') 
 
 def ymlListToValue(v:list) -> list:
     '''Accepts a single value and prepares it to be supplied to an
@@ -363,7 +366,7 @@ if __name__ == '__main__':
 
                         values = ymlListToValue(values)
 
-                        _args += [BFT.format(flag=flag)]+values
+                        _args += [BFT.format(flag=swapScore(flag))]+values
 
                 run_db_command(db_sp, _args)
 
@@ -430,7 +433,7 @@ if __name__ == '__main__':
     
                         brute_cli_args.append(
                             FT.format(
-                                flag=ik.replace("_","-"),
+                                flag=swapScore(ik.replace),
                                 value=iv))
 
             brute_cli_args.append(db_arg)

@@ -228,13 +228,13 @@ parser_disable_usernames = subparsers.add_parser(
     'disable-usernames',
     description='Disable usernames, removing them from further'
         'guesses.',
-    help='Disable usernames from further guesses.',
+    help='Stop guessing of target usernames.',
     parents=[db_flag],
     add_help=False)
 parser_disable_usernames.set_defaults(cmd=disable_usernames)
 
 parser_disable_usernames.add_argument('--usernames', '-u',
-    help='Stop guessing of target usernames.',
+    help='Usernames to disable.',
     required=True,
     nargs='+')
 

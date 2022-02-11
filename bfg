@@ -402,7 +402,7 @@ if __name__ == '__main__':
                     else:
 
                         brute_cli_args.append(
-                            FT.format(flag=k, value=v))
+                            FT.format(flag=swapScore(k), value=v))
     
                 else:
     

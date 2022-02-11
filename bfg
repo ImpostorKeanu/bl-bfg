@@ -433,7 +433,7 @@ if __name__ == '__main__':
     
                         brute_cli_args.append(
                             FT.format(
-                                flag=swapScore(ik.replace),
+                                flag=swapScore(ik),
                                 value=iv))
 
             brute_cli_args.append(db_arg)

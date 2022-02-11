@@ -18,32 +18,6 @@ class Module:
     force module. It's useful in situations when an upstream server
     needs to be targeted.
 
-    Arguments for the module that'll be passed along from the user are
-    defined in the function annotations for __init__. This means that
-    each parameter must receive an annotations.
-
-    ## Function Annotation Format
-
-    The function annotation format is a simple comma delimited list of
-    values that are passed along to argparse:
-    
-    required:(True|False),type:<Expected input type>,help:<Help string>
-
-    ### Example
-
-    The following example sets a static server IP address for a fake
-    module.
-
-    ```
-    def __init__(self,server_ip:'required:True,type:str,help:"ip of server"'):
-        pass
-    ```
-
-    ### Notes
-
-    - type is not actually passed to the type parameter of an argparse
-    argument. It's just there to be shown in the help menu.
-
     # The __call__ Method
 
     This method is called for each authentication attempt by BruteLoops
@@ -51,13 +25,13 @@ class Module:
     signature must look like:
 
     ```
-    def __call__(self, username, password):
+    def __call__(self, username, password, *args, **kwargs):
         success = False
 
         # Do authentication and update success to True if successful
 
-        if success: return (1,username,password,)
-        else: return (0,username,password,)
+        if success: return dict(outcome=1,username=username,password=password)
+        else: return dict(outcome=0,username=username,password=password,
     ```
 
     Note the structure returned in the declaration above. The leading
@@ -200,5 +174,9 @@ class Module:
                 epilog=epilog)
 
         parser.set_defaults(module=cls)
+
+        parser.add_argument('--database', '-db',
+            required=True,
+            help='Database to target.')
 
         return parser

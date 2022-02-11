@@ -8,8 +8,7 @@ from bruteloops.config import Config
 from bruteloops.logging import getLogger, GENERAL_EVENTS
 from pathlib import Path
 from yaml import load as loadYml, SafeLoader
-from sys import stderr
-from sys import exit
+from sys import stderr, exit, argv
 from bfg import parser as modules_parser
 from bfg.db_args import parser as db_parser
 
@@ -214,6 +213,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
 		description='A brute force attack framework.')
+    parser.set_defaults(parser_name='root', parser=parser)
     subparsers = parser.add_subparsers(
         title='Select Input Mode',
         description='This determines how input '
@@ -230,6 +230,7 @@ if __name__ == '__main__':
 
     cli_parser = subparsers.add_parser('cli',
         help='Supply BFG inputs via command line.')
+    cli_parser.set_defaults(parser_name='cli', parser=cli_parser)
     cli_subparsers = cli_parser.add_subparsers(
         title='Select Operating Mode',
         description='Either manage an attack database or start a '
@@ -239,17 +240,15 @@ if __name__ == '__main__':
         parents=[db_parser],
         description='Manage the attack database.',
         help='Manage the attack database.')
-    db_sp.set_defaults(mode='db')
+    db_sp.set_defaults(parser_name='manage-db', parser=db_sp,
+        mode='db')
 
     brute_sp = cli_subparsers.add_parser('brute-force',
         parents=[modules_parser],
         description='Perform a brute-force attack.',
         help='Perform a brute-force attack.')
 
-    brute_sp.set_defaults(mode='brute')
-    brute_sp.add_argument('--database', '-db',
-        required=True,
-        help='Database to target.')
+    brute_sp.set_defaults(mode='brute', parser=brute_sp)
 
     # =====================
     # YML INPUT SUBCOMMANDS
@@ -264,8 +263,21 @@ if __name__ == '__main__':
         help='YAML file containing db/attack configuration parameters.')
     yaml_parser.set_defaults(mode='yaml')
 
+    # =====================
+    # PARSE INPUT ARGUMENTS
+    # =====================
+
+    if len(argv) == 1:
+        parser.print_help()
+        exit()
+
     # Parse the arguments
     args = parser.parse_args()
+
+    if not hasattr(args, 'mode'):
+
+        args.parser.print_help()
+        exit()
 
     # =====================
     # HANDLE YAML ARGUMENTS
@@ -407,8 +419,20 @@ if __name__ == '__main__':
         # ===================
 
         if not hasattr(args, 'module'):
-            raise Exception(
-                'No attack module supplied!')
+
+            # ==================================
+            # NO ATTACK MODULE HAS BEEN SUPPLIED
+            # ==================================
+
+            args.parser.print_help()
+            print(
+                '\n\nError: No attack module supplied! Select and '
+                'provide an attack module from above!\n\n')
+            exit()
+
+        # ============================
+        # LAUNCH THE BruteLoops ATTACK
+        # ============================
 
         # Initialize a BruteLoops.config.Config object
         config = Config()

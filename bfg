@@ -10,7 +10,7 @@ from pathlib import Path
 from yaml import load as loadYml, SafeLoader
 from sys import stderr, exit, argv
 from bfg import parser as modules_parser
-from bfg.db_args import parser as db_parser
+from bfg.cli.manage_db import parser as db_parser
 
 NBFT = NO_BASE_FLAG_TEMPLATE = '--no-{flag}'
 BFT = BASE_FLAG_TEMPLATE = '--{flag}'
@@ -258,8 +258,7 @@ if __name__ == '__main__':
         description='Supply BFG inputs via YAML file. '
             'See brute_sample.yml for a working example.',
         help='Supply BFG inputs via YAML file.')
-    yaml_parser.add_argument('--yaml-file', '-yml',
-        required=True,
+    yaml_parser.add_argument('yaml-file',
         help='YAML file containing db/attack configuration parameters.')
     yaml_parser.set_defaults(mode='yaml')
 

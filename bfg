@@ -44,14 +44,42 @@ manager=None
 # Shared args variables
 args=None
 
-def ymlBoolToFlag(v):
+def ymlBoolToFlag(flag:str, b:bool) -> str:
+    '''Parse a YAML boolean value to it's corresponding --{flag}
+    or --no-{flag} value.
 
-    if v == True:
-        return BFT.format(flag=k)
+    Args:
+        flag: Base flag name.
+        b: Boolean value.
+
+    Returns:
+        str formatted as "--flag" or "--no-flag".
+
+    Raises:
+        ValueError when a non-boolean type is upplied for b.
+    '''
+
+    if not isinstance(b, bool):
+        raise ValueError(
+            f'b must be a bool, got {type(b)}')
+
+    if b == True:
+        return BFT.format(flag=flag)
     else:
-        return NBFT.format(flag=k)
+        return NBFT.format(flag=flag)
 
-def ymlListToValue(v):
+def ymlListToValue(v:list) -> list:
+    '''Accepts a single value and prepares it to be supplied to an
+    argparse argument.
+
+    - If a list is supplied, each value is converted to a str and a
+      new list is returned.
+    - If a single value is supplied, it is converted to a str and
+      returned as a single element list.
+
+    Returns:
+        [str]
+    '''
 
     if isinstance(v, list):
         return [str(_v) for _v in v]
@@ -209,11 +237,17 @@ def handle_keyboard_interrupt(brute,exception):
 
 if __name__ == '__main__':
 
-    print(AART)
+    print(AART,file=stderr)
+
+    # ====================
+    # BASE ARGUMENT PARSER
+    # ====================
 
     parser = argparse.ArgumentParser(
 		description='A brute force attack framework.')
-    parser.set_defaults(parser_name='root', parser=parser)
+    parser.set_defaults(parser=parser)
+
+    # Initialize subcommands
     subparsers = parser.add_subparsers(
         title='Select Input Mode',
         description='This determines how input '
@@ -228,21 +262,23 @@ if __name__ == '__main__':
     # CLI INPUT SUBCOMMANDS
     # =====================
 
+    # Base CLI subparser
     cli_parser = subparsers.add_parser('cli',
         help='Supply BFG inputs via command line.')
-    cli_parser.set_defaults(parser_name='cli', parser=cli_parser)
+    cli_parser.set_defaults(parser=cli_parser)
     cli_subparsers = cli_parser.add_subparsers(
         title='Select Operating Mode',
         description='Either manage an attack database or start a '
             'brute-force attack.')
 
+    # Database management
     db_sp = cli_subparsers.add_parser('manage-db',
         parents=[db_parser],
         description='Manage the attack database.',
         help='Manage the attack database.')
-    db_sp.set_defaults(parser_name='manage-db', parser=db_sp,
-        mode='db')
+    db_sp.set_defaults(parser=db_sp, mode='db')
 
+    # Brute force
     brute_sp = cli_subparsers.add_parser('brute-force',
         parents=[modules_parser],
         description='Perform a brute-force attack.',
@@ -258,7 +294,7 @@ if __name__ == '__main__':
         description='Supply BFG inputs via YAML file. '
             'See brute_sample.yml for a working example.',
         help='Supply BFG inputs via YAML file.')
-    yaml_parser.add_argument('yaml-file',
+    yaml_parser.add_argument('yaml_file',
         help='YAML file containing db/attack configuration parameters.')
     yaml_parser.set_defaults(mode='yaml')
 
@@ -275,6 +311,7 @@ if __name__ == '__main__':
 
     if not hasattr(args, 'mode'):
 
+        # A mode hasn't been selected
         args.parser.print_help()
         exit()
 
@@ -298,8 +335,6 @@ if __name__ == '__main__':
         db_args = yargs.get('manage-db', {})
         bf_args = yargs.get('brute-force', {})
 
-        brute_cli_args = [db_arg]
-
         # ================
         # DO DB MANAGEMENT
         # ================
@@ -322,7 +357,7 @@ if __name__ == '__main__':
                     if isinstance(values, bool):
 
                         _args.append(
-                            ymlBoolToFlag(values))
+                            ymlBoolToFlag(flag=flag, b=values))
 
                     else:
 
@@ -338,6 +373,7 @@ if __name__ == '__main__':
 
         if bf_args:
 
+            brute_cli_args = []
 
             if not 'module' in bf_args.keys():
                 raise ValueError(
@@ -358,7 +394,7 @@ if __name__ == '__main__':
                     if isinstance(v, bool):
                         
                         brute_cli_args.append(
-                            ymlBoolToFlag(v))
+                            ymlBoolToFlag(flag=k, b=v))
 
                     else:
 
@@ -397,6 +433,7 @@ if __name__ == '__main__':
                                 flag=ik.replace("_","-"),
                                 value=iv))
 
+            brute_cli_args.append(db_arg)
             args = brute_sp.parse_args(brute_cli_args)
 
     if args.mode == 'db':

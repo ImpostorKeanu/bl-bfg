@@ -18,7 +18,7 @@ def dump_valid(args, logger, manager):
     else:
         logger.info(f'Count of valid credentials: {len(credentials)}')
 
-    for r in manager.get_valid_credentials(args, logger, manager):
+    for r in manager.get_valid_credentials():
         print(f'{r.username.value}:{r.password.value}')
 
     logger.info('Credentials dumped')

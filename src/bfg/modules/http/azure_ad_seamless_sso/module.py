@@ -7,7 +7,7 @@ from xml.sax.saxutils import escape as xEscape
 from requests import Session
 from dict_tools.data import subdict_match, traverse_dict
 from uuid import uuid4 as uuid
-from bfg.args import http as http_args
+from bfg.args import http as http_args, argument
 from bfg.shortcuts.http import HTTPModule, handleUA
 from bfg.shortcuts.azure import *
 from requests.exceptions import ConnectionError

@@ -152,7 +152,7 @@ class Module:
                     raise ValueError(
                         'contributor records must have a "name" field')
 
-                epilog += f'- {name}'
+                epilog += f'\n- {name}'
 
                 if additional:
 

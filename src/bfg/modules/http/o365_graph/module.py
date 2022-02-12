@@ -168,8 +168,6 @@ class Module(HTTPModule):
     def __post_init__(self, client_id, resource_url,
             *args, **kwargs):
 
-        print('POST INIT')
-
         self.client_id = client_id
         self.resource_url = resource_url
 

@@ -96,6 +96,20 @@ and run the following command. Note that output will be written to the
 docker-compose run --rm bfg
 ```
 
+# Overriding the Entrypoint to access Help
+
+The entrypoint can be overridden to access the CLI and get help output.
+
+```bash
+OUTPUT_DIRECTORY=junk docker-compose run --rm --entrypoint bfg bfg --help
+```
+
+Try this command ff an attack module listing is desired:
+
+```bash
+OUTPUT_DIRECTORY=junk docker-compose run --rm --entrypoint bfg bfg cli brute-force --help
+```
+
 # Behavioral Notes
 
 ## Default Execution Mode (ENTRYPOINT is `bfg yaml`)

@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  bfg:
+    container_name: bfg
+    hostname: bfg
+    entrypoint: bfg yaml "${YAML_FILE:-brute.yml}"
+    build:
+      context: ../
+      dockerfile: /docker/Dockerfile
+    volumes:
+      - "${OUTPUT_DIRECTORY:?Required in order to save output to disk}:/bfg/"

@@ -115,15 +115,15 @@ def url():
 @argument
 def clientID(name_or_flags=('--client-id',),
         default=DEFAULT_CLIENT_ID,
-        help='Client ID (UUID) to use. Supply RANDOM to select a'
-            ' random value.'):
+        help='Client ID (UUID) to use. EXPERIMENTAL: Supply RANDOM to '
+            'select a random value.'):
     pass
 
 @argument
 def resourceURL(name_or_flags=('--resource-url',),
         default=DEFAULT_RESOURCE_URL,
-        help='Resource URL to use. Supply RANDOM to select a '
-            'random value'):
+        help='Resource URL to use. EXPERIMENTAL: Supply RANDOM to '
+            'select a random value'):
     pass
 
 class Module(HTTPModule):
@@ -139,15 +139,23 @@ class Module(HTTPModule):
 
     contributors = [
             dict(
-                name='Justin Angel [Creator]',
+                name='Michael Allen [Researcher]',
+                additional=dict(
+                    company='Black Hills Information Security')),
+            dict(
+                name='Justin Angel [Module Creator]',
                 additional=dict(
                     company='Black Hills Information Security',
                     twitter='@ImposterKeanu')),
             dict(
-                name='Steve Borosh [Researcher]',
+                name='Steve Borosh [Lead Researcher]',
                 additional=dict(
                     company='Black Hills Information Security',
                     twitter='@rvrsh3ll')),
+            dict(
+                name='Corey Ham [Researcher]',
+                additional=dict(
+                    company='Black Hills Information Security')),
         ]
 
     references = [

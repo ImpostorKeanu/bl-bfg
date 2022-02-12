@@ -128,7 +128,12 @@ class Module:
 
         epilog = None
         if hasattr(cls, 'contributors'):
-            epilog = 'Module Contributors:\n\n'
+
+            # ==========================
+            # FORMAT MODULE CONTRIBUTORS
+            # ==========================
+
+            epilog = 'Contributors:\n\n'
 
             if not isinstance(cls.contributors, list):
 
@@ -152,7 +157,7 @@ class Module:
                     raise ValueError(
                         'contributor records must have a "name" field')
 
-                epilog += f'- {name}'
+                epilog += f'\n- {name}'
 
                 if additional:
 
@@ -165,6 +170,31 @@ class Module:
                     for k,v in additional.items():
 
                         epilog += f'\n  {k}: {v}'
+
+
+                epilog += '\n'
+
+        if hasattr(cls, 'references'):
+
+            # ========================
+            # FORMAT MODULE REFERENCES
+            # ========================
+
+            epilog += f'\nReferences:\n'
+
+            references = cls.references
+
+            if not isinstance(references, list):
+
+                raise ValueError(
+                    f'References must be a list, got {type(references)}')
+
+            for ref in references:
+                epilog += f'\n- {ref}'
+
+        # ======================
+        # BUILD MODULE ARGUMENTS
+        # ======================
 
         parser = subparsers.add_parser(cls.get_handle(),
                 description=cls.description,

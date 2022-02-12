@@ -59,17 +59,15 @@ class Module(HTTPModule):
                     twitter='@ImposterKeanu'))
         ]
 
-    def __init__(self, url, domain, landing_path, login_path,
+    def __post_init__(self, domain, landing_path, login_path,
             *args, **kwargs):
 
-        self.url=url
+        self.url=self.url
         self.domain=domain
         self.landing_path=landing_path
         self.login_path=login_path
         self.landing_url=f'{url}{landing_path}'
         self.auth_url=f'{url}{login_path}'
-
-        super().__init__(url=url, *args, **kwargs)
 
     @handleUA
     def __call__(self,username,password):

@@ -48,10 +48,8 @@ class Module(HTTPModule):
                     twitter='@ImposterKeanu'))
         ]
 
-    def __init__(self, url, flags, forcedownlevel, trusted, isUtf8,
+    def __post_init__(self, flags, forcedownlevel, trusted, isUtf8,
             *args, **kwargs):
-
-        super().__init__(url=url, *args, **kwargs)
 
         self.flags = flags
         self.forcedownlevel = forcedownlevel

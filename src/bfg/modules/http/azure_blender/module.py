@@ -11,7 +11,7 @@ def msol_url():
     '''
 
     return http_args.url(
-        name_or_flags=('--msol-url',),
+        name_or_flags=('--url',),
         required=False,
         default=graph.MSONLINE_URL,
         help='Microsoft Online URL to target. Default: %(default)s')
@@ -50,12 +50,10 @@ class Module(HTTPModule):
 
     references = []
 
-    def __init__(self, msol_url, azure_sso_url, *args, **kwargs):
+    def __post_init__(self, azure_sso_url, *args, **kwargs):
 
-        self.msol_url = msol_url
+        self.msol_url = self.url
         self.azure_sso_url = azure_sso_url
-
-        super().__init__(url=msol_url, *args, **kwargs)
 
     @handleUA 
     def __call__(self, username, password, *args, **kwargs):

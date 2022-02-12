@@ -72,13 +72,8 @@ class Module(HTTPModule):
         http_args.getDefaults('url',invert=True)
 
 
-    def __init__(self, url, cookies_url, cookies_referrer_url,
-            proxies, headers, verify_ssl, user_agent, allow_redirects,
+    def __post_init__(self, cookies_url, cookies_referrer_url,
             *args, **kwargs):
-
-        super().__init__(url=url, proxies=proxies, headers=headers,
-            verify_ssl=verify_ssl, user_agent=user_agent,
-            allow_redirect=allow_redirects, *args, **kwargs)
 
         self.cookies_url = cookies_url
         self.cookies_referrer_url = cookies_referrer_url

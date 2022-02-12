@@ -36,10 +36,9 @@ class Module(HTTPModule):
                     twitter='@ImposterKeanu'))
         ]
 
-    def __init__(self, url, *args, **kwargs):
+    def __post_init__(self, *args, **kwargs):
 
-        url = url+BASE_PATH
-        super().__init__(url=url, *args, **kwargs)
+        self.url += BASE_PATH
 
     @handleUA
     def __call__(self,username,password,*args,**kwargs):

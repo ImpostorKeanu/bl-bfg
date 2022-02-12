@@ -1,6 +1,37 @@
 import argparse
 import inspect
 import re
+from copy import deepcopy
+
+def bindSignatureArgs(func, src:dict) -> dict:
+    '''
+
+    Args:
+        func: Function/method from which the signature will be sourced.
+        src: Source dictionary that will provide values for dest.
+
+    Returns:
+        A new dictionary with argument values from src set
+        in dest.
+
+    '''
+
+    dest = {}
+
+    # Iterate over paramaters and values in the function's
+    # signature
+    for k,v in inspect.signature(func).parameters.items():
+
+        # Skip "self" references
+        if k == 'self': continue
+
+        # Extract the user supplied value when provided
+        if k in src: dest[k]=src[k]
+
+        # Use the default value other wise
+        else: dest[k]=v
+
+    return dest
         
 class Module:
 
@@ -58,22 +89,19 @@ class Module:
 
         # Initialize a dictionary to hold all of the necessary argument
         # to initialize the brute force module.
-        dct = {}
-
-        # Take each argparse value and add it to the dictionary
-        for k,v in inspect.signature(cls.__init__).parameters.items():
-
-            # Skip "self" references
-            if k == 'self': continue
-
-            # Extract the user supplied value when provided
-            if k in args: dct[k]=args[k]
-
-            # Use the default value other wise
-            else: dct[k]=v
+        dct = bindSignatureArgs(func=cls.__init__, src=args)
 
         # Initialize and return the module
-        return cls(**dct)
+        instance = cls(**dct)
+
+        if hasattr(instance, '__post_init__'):
+
+            instance.__post_init__(
+                **bindSignatureArgs(
+                    func=instance.__post_init__,
+                    src=args))
+
+        return instance
 
     @classmethod
     def validate(cls):
@@ -107,6 +135,7 @@ class Module:
     def get_handle(cls):
         '''Return a simple string to use as a module identifier.
         '''
+
         return '.'.join(cls.__module__.split('.')[-3:][:2])
 
     @classmethod

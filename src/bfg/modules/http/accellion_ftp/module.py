@@ -60,7 +60,7 @@ def login_path(name_or_flags=('--login-path',), default=DEFAULT_LOGIN,
     pass
 
 @argument
-def origin_url(name_or_flags=('--origin-url',),
+def url(name_or_flags=('--url',),
         required=True,
         help='Origin server which --landing-path and --login-path '
                 'will be suffixed to. Expected format: '
@@ -73,7 +73,7 @@ class Module(HTTPModule):
 
     name = 'http.accellion_ftp'
     description = brief_description = 'Accellion FTP HTTP interface login module'
-    args = [origin_url(), login_path(), landing_path()]+\
+    args = [url(), login_path(), landing_path()]+\
         http_args.getDefaults('url', invert=True)
     contributors = [
             dict(
@@ -84,17 +84,13 @@ class Module(HTTPModule):
         ]
 
 
-    def __init__(self, origin_url, landing_path, login_path,
-            *args, **kwargs):
+    def __post_init__(self, landing_path, login_path, *args, **kwargs):
 
-        self.origin_url=origin_url
+        self.origin_url=self.url
         self.landing_path=landing_path
         self.login_path=login_path
         self.landing_url=f'{origin_url}{landing_path}'
         self.auth_url=f'{origin_url}{login_path}'
-        self.user_agent=user_agent
-
-        super().__init__(url=origin_url, *args, **kwargs)
 
     @handleUA
     def __call__(self, username, password):

@@ -165,12 +165,10 @@ class Module(HTTPModule):
                 'rvrsh3ll/aad-sso-enum-brute-spray',
         ]
 
-    def __init__(self, url, proxies, headers, verify_ssl, user_agent,
-            allow_redirects, client_id, resource_url,
+    def __post_init__(self, client_id, resource_url,
             *args, **kwargs):
 
-        super().__init__(url, proxies, headers, verify_ssl, user_agent,
-            allow_redirects, *args, **kwargs)
+        print('POST INIT')
 
         self.client_id = client_id
         self.resource_url = resource_url

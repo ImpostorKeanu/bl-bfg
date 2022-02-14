@@ -1,8 +1,16 @@
 BFG represents attacks as modules, which are really basic Python packages.
 This document briefly describes the structure and content of attack modules
-to assist contributors with the development process.
+to assist contributors and operators when custom modules are needed.
 
-See `src/bfg/modules/testing/fake/module.py` for a succinct example module.
+# Quick Reference
+
+- `src/bfg/modules/testing/fake/module.py` for a succinct example module.
+- [Base Template](#base-template) for a starting point on custom modules.
+- [Module (Package) Structure](#module-package-structure) to see what is
+  needed to deploy a custom module in the framework.
+- [Module Parameters (Arguments)](#module-parameters-arguments) to learn
+  about how module-level arguments are created and passed from the CLI
+  to the module.
 
 # Module Organization
 
@@ -31,6 +39,69 @@ total 8
 ```
 
 # The Module File
+
+## Base Template
+
+This template can be used to jumpstart module development:
+
+```python
+from bfg.module import Module as BLModule
+from bfg.args import argument
+
+# bfg.args.argument deccorator is a fast method of creating
+# arguments that will be supplied at runtime via bfg. These
+# are typically used to configure the module itself at runtime.
+@argument
+def timeout(name_or_flags=('--timeout','-to',),
+    type=int,
+    default=3,
+    help='Maximum period of time that can pass before '
+      'abandoning the authentication guess.'):
+    pass
+
+# Module class must always be "Module"
+class Module(BLModule):
+
+    # Name of the template.
+    name = 'Template'
+    
+    # Printed when modules are listed.
+    brief_description = 'Short description here.'    
+    
+    # Printed when module arguments are listed.
+    description = 'Lengthy description here.'
+    
+    # argparse.ArgumentParser objects, one for each argument.
+    args = [timeout()]
+    
+    # List of contributors
+    cocntributors = []
+    
+    # List of `str` references
+    references = []
+    
+    def __init__(self, *args, **kwargs):
+        '''Apply any module-level configurations that will persist
+        throughout the attack here. If initialization is not required,
+        then this method can be removed.        
+        '''
+        
+        super().__init__(*args, **kwargs)
+        
+    def __call__(self, username:str, password:str, **kwargs) -> dict:
+        '''This is the function that should guess the username and
+        password.
+        '''
+        
+        # Do authentication. It's on you to define this part :)
+        is_valid = authenticate(username, password)
+        
+        # Assume that authenticate() returned an integer value
+        return dict(
+            outcome=is_valid,
+            username=username,
+            password=password)
+```
 
 ## Module Inheritance
 
@@ -71,7 +142,7 @@ details each supported attribute.
 - `references` - `[str]` - A list of `str` values that will be printed to the
   help menu.
 
-## Module Configuration Parameters (Arguments)
+## Module Parameters (Arguments)
 
 tbd
 

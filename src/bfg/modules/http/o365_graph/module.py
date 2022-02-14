@@ -12,8 +12,13 @@ MSONLINE_NETLOC = 'login.microsoftonline.com'
 O365_URL        = 'https://outlook.office365.com'
 AUTH_PATH       = '/common/oauth2/token'
 
-DEFAULT_RESOURCE_URL  = 'https://graph.windows.net'
-DEFAULT_CLIENT_ID     = '1b730954-1685-4b74-9bfd-dac224a7b894'
+#DEFAULT_RESOURCE_URL  = 'https://graph.windows.net'
+#DEFAULT_CLIENT_ID     = '1b730954-1685-4b74-9bfd-dac224a7b894'
+DEFAULT_RESOURCE_URL = 'https://graph.microsoft.com'
+DEFAULT_CLIENT_ID    = '1fec8e78-bce4-4aaf-ab1b-5451cc387264'
+DEFAULT_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit' \
+        '/537.36 (KHTML, like Gecko) Teams/1.2.00.34161 Chrome/66.0' \
+        '.3359.181 Electron/3.1.13 Safari/537.36'
 
 def strip_slash(s):
 
@@ -59,7 +64,12 @@ class Session(Session):
             name, resource_url = getRandomResource()
 
         if client_id == 'RANDOM':
-            client, tag, client_id = getRandomClientID()
+            while True:
+                client, tag, client_id = getRandomListItem(
+                    MSOL_UNIVERSAL_CLIENT_IDS)
+                if client_id != '1b730954-1685-4b74-9bfd-dac224a7b894':
+                    # Loop until the client_id is not PowerShell
+                    break
 
         # ================
         # MAKE THE REQUEST
@@ -116,15 +126,22 @@ def url():
 def clientID(name_or_flags=('--client-id',),
         default=DEFAULT_CLIENT_ID,
         help='Client ID (UUID) to use. EXPERIMENTAL: Supply RANDOM to '
-            'select a random value.'):
+            'select a random value. Default: %(default)s'):
     pass
 
 @argument
 def resourceURL(name_or_flags=('--resource-url',),
         default=DEFAULT_RESOURCE_URL,
         help='Resource URL to use. EXPERIMENTAL: Supply RANDOM to '
-            'select a random value'):
+            'select a random value. Default: %(default)s'):
     pass
+
+def user_agent():
+
+    return http_args.url(
+        name_or_flags=('--user-agent',),
+        default=DEFAULT_UA,
+        help='User-Agent header value. Defaults to Teams: %(default)s')
 
 class Module(HTTPModule):
 
@@ -134,7 +151,8 @@ class Module(HTTPModule):
 
     description = 'Brute force the Office365 Graph API.'
 
-    args = [url()] + http_args.getDefaults('url', invert=True) + \
+    args = [url(), user_agent()] + http_args.getDefaults(
+            'url', 'user_agent', invert=True) + \
             [clientID(), resourceURL(),]
 
     contributors = [

@@ -115,9 +115,12 @@ class Module(Module):
 	pass
 ```
 
-The `bfg.shortcuts` may also provide child classes that inherit
+The `bfg.shortcuts` packages define child classes that inherit
 from `Module` to provide foundational initizialization functions.
-See `src/bfg/shortcuts/http.py` for an example of this.
+See `src/bfg/shortcuts/http.py` for an example of this, which provides
+standard arguments for the `requests` library to make HTTP requests.
+Most all of the packages under `src/bfg/modules/http` inherit from
+the HTTP shortcut.
 
 ```python
 from bfg.shortcuts.http import HTTPModule

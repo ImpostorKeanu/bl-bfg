@@ -65,7 +65,7 @@ class Session(Session):
 
         if client_id == 'RANDOM':
             while True:
-                client, tag, client_id = getRandomListItem(
+                client_id = getRandomListItem(
                     MSOL_UNIVERSAL_CLIENT_IDS)
                 if client_id != '1b730954-1685-4b74-9bfd-dac224a7b894':
                     # Loop until the client_id is not PowerShell
@@ -140,6 +140,7 @@ def user_agent():
 
     return http_args.url(
         name_or_flags=('--user-agent',),
+        required=False,
         default=DEFAULT_UA,
         help='User-Agent header value. Defaults to Teams: %(default)s')
 

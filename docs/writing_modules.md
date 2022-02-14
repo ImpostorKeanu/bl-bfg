@@ -24,7 +24,7 @@ Minimally, a module package must contain the following two files:
 So an example module may be deployed like:
 
 ```
-archangel@iron:src~> ls -l bfg/modules/http/o365_graph/
+$ ls -l bfg/modules/http/o365_graph/
 total 8
 -rw-r--r-- 1 archangel archangel    0 Feb 11 08:03 __init__.py
 -rw-r--r-- 1 archangel archangel 6385 Feb 12 09:00 module.py
@@ -56,7 +56,20 @@ class Module(HTTPModule):
 
 ## Module Attributes
 
-tbd
+Module-level attributes are parsed at runtime and their values are
+used to describe its various characteristics. The following list
+details each supported attribute.
+
+- `name` - `str` - Name of the module that will appear in the help menu.
+- `description` - `str` - Brief description that will appear in the module listing.
+- `args` - `[argparse.ArgumentParser]` - A list of `ArgumentParser` objects
+  that produce the CLI interface when executed via BFG.
+- `contributors` - `[dict]` - A list of `dict` objects. Each instance describes
+  an individual contributor and must have a `name` member. Additional information
+  can be supplied as a `dict` object in the `additional` member for each
+  contributor.
+- `references` - `[str]` - A list of `str` values that will be printed to the
+  help menu.
 
 ## Module Configuration Parameters (Arguments)
 
@@ -112,7 +125,7 @@ elements:
 
 ```python
 {
-	"outcome": 0
+	"outcome": 0,
 	"username": "username value",
 	"password": "password value",
 	"events":[

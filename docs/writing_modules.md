@@ -11,6 +11,8 @@ to assist contributors and operators when custom modules are needed.
 - [Module Parameters (Arguments)](#module-parameters-arguments) to learn
   about how module-level arguments are created and passed from the CLI
   to the module.
+- [The `__call__` Method](#the-__call__-method) describes how each guess is
+  performed.
 
 # Module Organization
 
@@ -147,7 +149,40 @@ details each supported attribute.
 
 ## Module Parameters (Arguments)
 
-tbd
+- Module parameters are values supplied to the CLI/YAML when starting an attack.
+- Each argument is an individual `argparse.ArgumentParser` object.
+  - This allows for a single parameter to be reused in different modules.
+- Default parameters for _some_ protocols can be found in `src/bfg/args`,
+  meaning that you can pull them into your modules without redefining them.
+  
+### Defining Custom Parameters
+
+- Use the `bfg.args.argument` decorator to quickly create reusable parameters.
+- The pattern is obtuse, but `@argument` effectively reads the signature of the
+  decorated function and translates it to an `argparse.ArgumentParser` object
+  with a single argument.
+
+```python3
+from bfg.args import argument
+
+@argument
+def customArgument(name_or_flags=('--custom'),
+        required=True,
+        help='This is my custom argument.'):
+    pass
+```
+
+- Then bind the argument to the module definition:
+
+```python3
+from bfg.module import Module as BLModule
+
+class Module(BLModule):
+    # ...other attributes above...
+    args = [customArgument()]
+    # ...rest of module defnition below...
+```
+
 
 ## The `__call__` Method
 

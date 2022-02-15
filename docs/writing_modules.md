@@ -4,6 +4,9 @@ to assist contributors and operators when custom modules are needed.
 
 # Quick Reference
 
+These bullets should help get you started with developing custom attack
+modules.
+
 - `src/bfg/modules/testing/fake/module.py` for a succinct example module.
 - [Base Template](#base-template) for a starting point on custom modules.
 - [Module (Package) Structure](#module-package-structure) to see what is
@@ -201,6 +204,7 @@ class Module(HTTPModule):
     args = http_args.getDefaults()
 ```
 
+- See the HTTP modules directory for working examples of this pattern.
 
 ## The `__call__` Method
 
@@ -269,3 +273,22 @@ elements:
 - `username` is the string username value that was checked.
 - `password` is the string password value that was checked.
 - `events` is a list of string values that will be logged after guessing the credentials.
+
+## The `__post_init__` Method
+
+- This method is called by `bfg.module.Module.initialize`, allowing for child
+  classes to perform additional initialization steps without calling `super()`.
+- This is particularly useful when inheriting from subclasses of `bfg.module.Module`
+  that are defined with verbose/complex `__init__` method.
+- The `__post_init__` method will be called with arguments specified in its
+  method signature.
+- The following example method would receive `client_id` and `resource_url`
+  from upstream initialiation at runtime:
+  
+```python3
+    def __post_init__(self, client_id, resource_url,
+            *args, **kwargs):
+
+        self.client_id = client_id
+        self.resource_url = resource_url
+```

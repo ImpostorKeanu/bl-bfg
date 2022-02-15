@@ -9,12 +9,13 @@ getLogger('urllib3.connectionpool').setLevel(INFO)
 
 class Module(HTTPModule):
 
-    name = 'http.adfs'
     brief_description = 'Active Directory Federated Services'
+
     description = 'Brute force an ADFS server. NOTE: this module has '
     'not been thoroughly tested and is crude. It effectively '
     'takes a base URL, and just updates the POST body with the supppl'
     'ied credentials. It may not work on all ADFS versions.'
+
     contributors = [
             dict(
                 name='Justin Angel [Creator]',

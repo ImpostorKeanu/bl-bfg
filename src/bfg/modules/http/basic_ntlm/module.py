@@ -7,7 +7,6 @@ from bfg.shortcuts.http import HTTPModule, handleUA
 
 class Module(HTTPModule):
 
-    name = 'http.basicntlm'
     description = 'This module allows one to brute force web ' \
             'applicaitons using basic NTLM authentication.'
     brief_description = 'Generic HTTP basic NTLM authentication'

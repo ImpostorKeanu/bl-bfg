@@ -1,10 +1,6 @@
 from bfg.module import Module as BLModule
 from bfg.args.testing import default
 
-# ==================
-# BUILD THE CALLBACK
-# ==================
-
 class Module(BLModule):
     '''Fake authentication callback for testing purposes. Accepts a
     username and password value during initialization that will be
@@ -14,7 +10,6 @@ class Module(BLModule):
     an authentication event during tool development.
     '''
 
-    name = 'Fake'
     description = brief_description = 'Fake authentication module for ' \
             'training/testing'
     args = default()
@@ -25,7 +20,6 @@ class Module(BLModule):
                     company='Black Hills Information Security',
                     twitter='@ImposterKeanu'))
         ]
-
 
     def __init__(self, username:str, password:str):
         '''Initialize the Fake object.

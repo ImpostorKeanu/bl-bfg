@@ -28,8 +28,6 @@ def azure_sso_url():
 
 class Module(HTTPModule):
 
-    name = 'Azure Blender'
-
     brief_description = 'Blended attack against Azure'
 
     description = (

@@ -32,8 +32,6 @@ def isUTF8(name_or_flags=('--isUtf8',),
         
 class Module(HTTPModule):
 
-    name = 'http.owa2010'
-
     description = brief_description = 'OWA 2010 web interface'
 
     args = [http_args.url(), flags(), forcedownlevel(), trusted(),

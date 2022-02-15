@@ -12,7 +12,6 @@ class Module(HTTPModule):
     # replaced with a string literal value of ''
     blank_signatures = []
 
-    name = 'http.basic_digest'
     description = brief_description = 'Generic HTTP basic digest auth'
     contributors = [
             dict(

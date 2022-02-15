@@ -8,7 +8,6 @@ from bfg.shortcuts.http import HTTPModule, handleUA
 
 class Module(HTTPModule):
 
-    name = 'http.owa2016'
     description = brief_description = 'OWA 2016 web interface'
     contributors = [
             dict(

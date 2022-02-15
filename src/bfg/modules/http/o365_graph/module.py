@@ -146,14 +146,14 @@ def user_agent():
 
 class Module(HTTPModule):
 
-    name = 'http.o365_graph'
-
     brief_description = 'Office365 Graph API'
 
     description = 'Brute force the Office365 Graph API.'
 
-    args = [url(), user_agent()] + http_args.getDefaults(
-            'url', 'user_agent', invert=True) + \
+    args = [url(), user_agent()] + \
+            http_args.getDefaults(
+                'url', 'user_agent',
+                invert=True) + \
             [clientID(), resourceURL(),]
 
     contributors = [

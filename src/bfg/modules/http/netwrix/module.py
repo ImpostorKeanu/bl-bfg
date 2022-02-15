@@ -41,10 +41,6 @@ def login_path(name_or_flags=('--login-path',), default=DEFAULT_LOGIN,
     pass
 
 class Module(HTTPModule):
-    '''Callable FTP class for the Accellion FTP web interface.
-    '''
-
-    name = 'http.netwrix'
 
     description = brief_description = 'Netwrix web login'
 

@@ -33,7 +33,7 @@ def argument(f):
     '''
 
     @wraps(f)
-    def wrapper(name_or_flags=None, **kwargs):
+    def wrapper(*name_or_flags, **kwargs):
 
         if name_or_flags:
             kwargs['name_or_flags'] = name_or_flags

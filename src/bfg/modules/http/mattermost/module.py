@@ -43,7 +43,6 @@ Vary: Accept-Encoding
 
 class Module(HTTPModule):
 
-    name='http.mattermost'
     description = brief_description = 'Mattermost login web interface'
     contributors = [
             dict(

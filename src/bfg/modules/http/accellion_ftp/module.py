@@ -71,10 +71,11 @@ class Module(HTTPModule):
     '''Callable FTP class for the Accellion FTP web interface.
     '''
 
-    name = 'http.accellion_ftp'
     description = brief_description = 'Accellion FTP HTTP interface login module'
+
     args = [url(), login_path(), landing_path()]+\
         http_args.getDefaults('url', invert=True)
+
     contributors = [
             dict(
                 name='Justin Angel [Creator]',
@@ -82,7 +83,6 @@ class Module(HTTPModule):
                     company='Black Hills Information Security',
                     twitter='@ImposterKeanu'))
         ]
-
 
     def __post_init__(self, landing_path, login_path, *args, **kwargs):
 

@@ -73,8 +73,6 @@ class Module(HTTPModule):
     configurations.
     '''
 
-    name = 'http.global_protect'
-
     description = brief_description = 'Global Protect web interface'
 
     args = http_args.getDefaults()

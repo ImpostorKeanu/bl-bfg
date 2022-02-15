@@ -8,7 +8,6 @@ import pdb
 
 class Module(HTTPModule):
 
-    name = 'http.lync'
     description = brief_description = 'Brute force Microsoft Lync.'
     # Details expected request/response: https://docs.microsoft.com/en-us/skype-sdk/ucwa/authenticationinucwa
     contributors = [

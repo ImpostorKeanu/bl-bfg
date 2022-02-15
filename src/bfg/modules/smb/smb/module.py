@@ -49,12 +49,9 @@ def default_domain(name_or_flags=('--default-domain',),
             'with a username. Default: %(default)s'):
     pass
 
-
 class Module(BLModule):
     '''Defining the callback
     '''
-
-    name = 'smb.smb'
 
     brief_description = description = 'Target a single SMB server.'
 

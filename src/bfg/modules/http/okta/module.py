@@ -19,7 +19,7 @@ as an external identity provider. Note that this module will require
 the operator to proxy an authentication request through Burp to get
 the artifacts required to support the attack: cookies_url, and 
 cookies_referer_url. WARNING: If valid credentials are already
-available, testing them through BruteLoops is recommended to ensure
+available, testing them through BFG is recommended to ensure
 that changes to Okta's authentication process have not broken this
 module (things feel complicated).
 '''
@@ -44,32 +44,26 @@ REFERER_URL_HELP = \
 'of the referer header found in the same request described in ' \
 '`cookies_url`.'
 
-def url():
 
-    return http_args.url(help=URL_HELP)
-
-def cookies_url():
-
-    return http_args.url(
-        name_or_flags=('--cookies-url',),
-        required=True,
-        help=COOKIES_URL_HELP)
-
-def cookies_referrer_url():
-
-    return http_args.url(
-        name_or_flags=('--cookies-referrer-url',),
-        required=False,
-        help=REFERER_URL_HELP,
-        default=None)
 
 class Module(HTTPModule):
 
-    name = 'http.okta'
     brief_description = 'Okta JSON API'
+
     description = DESCRIPTION
-    args = [url(), cookies_url(), cookies_referrer_url()] + \
-        http_args.getDefaults('url',invert=True)
+
+    args = [
+            http_args.url(help=URL_HELP),
+            http_args.url(
+                '--cookies-url',
+                help=COOKIES_URL_HELP),
+            http_args.url(
+                '--cookies-referrer-url',
+                required=False,
+                help=REFERER_URL_HELP,
+                default=None),
+        ] + \
+        http_args.getDefaults('url', invert=True)
 
 
     def __post_init__(self, cookies_url, cookies_referrer_url,

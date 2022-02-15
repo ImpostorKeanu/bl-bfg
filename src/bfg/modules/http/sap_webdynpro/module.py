@@ -4,12 +4,9 @@ warnings.filterwarnings('ignore')
 import re
 import requests
 import logging
-from logging import getLogger, INFO
 from bfg.args import http as http_args
 from bfg.shortcuts.http import HTTPModule, handleUA
 
-# Get the brute force logger
-log = getLogger('BruteLoops.example.modules.http.sap_webdynpro')
 getLogger('urllib3.connectionpool').setLevel(INFO)
 
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (' \
@@ -24,7 +21,6 @@ def url():
 
 class Module(HTTPModule):
 
-    name = 'http.sap_webdynpro'
     description = brief_description = 'SAP Netweaver Webdynpro, ver. ' \
         '7.3007.20120613105137.0000'
     args = [url()] + http_args.getDefaults('url', invert=True)
@@ -77,12 +73,18 @@ class Module(HTTPModule):
                 allow_redirects=False,
                 proxies=self.proxies)
 
+        events = []
+
         if re.search('Logon with password not allowed', resp.text):
-            log.log(60, f'Logon with password not allowed: {username}')
+            events.append(f'Logon with password not allowed: {username}')
     
+        output = dict(outcome=0,
+            username=username,
+            password=password,
+            events=events)
+
         # verify credentials and return outcome
-        if resp.status_code == 200 and \
-                re.search('authentication failed', resp.text, re.I):
-            return [0, username, password]
-        else:
-            return [1, username, password]
+        if not re.search('authentication failed', resp.text, re.I):
+            output['outcome'] = 1
+
+        return output

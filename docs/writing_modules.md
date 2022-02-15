@@ -265,7 +265,7 @@ elements:
 }
 ```
 
-- `outcome` determines if authenitacation was successful. One of three
+- `outcome` determines if authentication was successful. One of three
   integer values can be supplied:
   - `-1` - Authentication failed and should be retried.
   - `0`  - Bad credentials.

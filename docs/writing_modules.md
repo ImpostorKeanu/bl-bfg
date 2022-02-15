@@ -63,10 +63,7 @@ def timeout(name_or_flags=('--timeout','-to',),
 
 # Module class must always be "Module"
 class Module(BLModule):
-
-    # Name of the template.
-    name = 'Template'
-    
+   
     # Printed when modules are listed.
     brief_description = 'Short description here.'    
     
@@ -136,8 +133,8 @@ Module-level attributes are parsed at runtime and their values are
 used to describe its various characteristics. The following list
 details each supported attribute.
 
-- `name` - `str` - Name of the module that will appear in the help menu.
-- `description` - `str` - Brief description that will appear in the module listing.
+- `brief_description` - `str` - Brief description that will appear in the module listing.
+- `description` - `str` - Lengthy description that will appear when listing module arguments.
 - `args` - `[argparse.ArgumentParser]` - A list of `ArgumentParser` objects
   that produce the CLI interface when executed via BFG.
 - `contributors` - `[dict]` - A list of `dict` objects. Each instance describes
@@ -166,7 +163,7 @@ details each supported attribute.
 from bfg.args import argument
 
 @argument
-def customArgument(name_or_flags=('--custom'),
+def customArgument('--custom',
         required=True,
         help='This is my custom argument.'):
     pass
@@ -181,6 +178,27 @@ class Module(BLModule):
     # ...other attributes above...
     args = [customArgument()]
     # ...rest of module defnition below...
+```
+
+## Reusing Pre-Defined Parameters
+
+- Parameters for common protocols may be found in `src/bfg/args`, such as
+  `src/bfg/args/http.py` containing common parameters for the `requests`
+  library.
+- These modules define callables that return parameters for attack modules.
+- A `getDefaults` function should be defined in each argument module that
+  is decorated with `bfg.args.getArgDefaults`, which allows module developers
+  to specify which arguments should be bound to the newly defined attack
+  module's argument list.
+- This is an example of obtaining reusable arguments for an HTTP module:
+
+```python3
+from bfg.shortcuts.http import HTTPModule
+from bfg.args import http as http_args
+
+class Module(HTTPModule):
+    # ...module definition
+    args = http_args.getDefaults()
 ```
 
 
@@ -250,3 +268,4 @@ elements:
   - `1`  - Good credentials.
 - `username` is the string username value that was checked.
 - `password` is the string password value that was checked.
+- `events` is a list of string values that will be logged after guessing the credentials.

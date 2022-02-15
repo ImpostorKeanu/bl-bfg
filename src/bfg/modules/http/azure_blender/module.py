@@ -3,7 +3,7 @@ from random import randint
 from bfg.data import loadAzureSSOSoap
 from bfg.args import http as http_args
 from bfg.shortcuts.http import HTTPModule, handleUA
-from bfg.modules.http.o365_graph import module as graph
+from bfg.modules.http.ms_graph import module as graph
 from bfg.modules.http.azure_ad_seamless_sso import module as sso
 
 def msol_url():

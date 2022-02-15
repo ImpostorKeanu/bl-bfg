@@ -145,15 +145,6 @@ class Module:
         declared in __init__ and build an interface via argparse.
         '''
 
-        # =====================
-        # INITIALIZE THE PARSER
-        # =====================
-        '''Here we create a new argparse argument parser for the command
-        assoicated with the newly created module. This is how we bind
-        the name that the user will refernce at the commandline, along
-        with providing a mechanism to assign values to module parameters.
-        '''
-
         epilog = None
         if hasattr(cls, 'contributors'):
 
@@ -223,6 +214,12 @@ class Module:
         # ======================
         # BUILD MODULE ARGUMENTS
         # ======================
+
+        '''Here we create a new argparse argument parser for the command
+        assoicated with the newly created module. This is how we bind
+        the name that the user will refernce at the commandline, along
+        with providing a mechanism to assign values to module parameters.
+        '''
 
         parser = subparsers.add_parser(cls.get_handle(),
                 description=cls.description,

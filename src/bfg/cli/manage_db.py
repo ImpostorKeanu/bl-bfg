@@ -43,12 +43,14 @@ def dump_strict_credentials(args, logger, manager):
     logger.info('Strict credentials dumped')
 
 
-def handle_values(args, logger, manager):
+def handle_values(args, logger, manager, associate_spray_values=True):
     '''Insert or delete values from the database.
     '''
 
-    new_args = {'as_credentials':args.as_credentials,
-            'insert':args.action == 'insert'}
+    new_args = dict(
+        as_credentials = args.as_credentials,
+        insert = args.action == 'insert',
+        associate_spray_values = associate_spray_values)
 
     for handle in ['usernames','passwords','credentials',
             'username_files','password_files','credential_files',
@@ -77,6 +79,11 @@ def enable_usernames(args, logger, manager):
 
     logger.info(f'Enabling usernames: {args.usernames}')
     manager.enable_username_records(container=args.usernames)
+
+def associate_spray_values(args, logger, manager):
+
+    logger.info(f'Associating spray values')
+    manager.associate_spray_values()
 
 db_flag = argparse.ArgumentParser()
 db_flag.add_argument('--database', '-db', help='Database to target.',

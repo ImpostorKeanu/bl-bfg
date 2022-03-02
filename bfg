@@ -10,7 +10,9 @@ from pathlib import Path
 from yaml import load as loadYml, SafeLoader
 from sys import stderr, exit, argv
 from bfg import parser as modules_parser
-from bfg.cli.manage_db import parser as db_parser
+from bfg.cli.manage_db import (
+    parser as db_parser,
+    handle_values)
 
 NBFT = NO_BASE_FLAG_TEMPLATE = '--no-{flag}'
 BFT = BASE_FLAG_TEMPLATE = '--{flag}'
@@ -123,7 +125,18 @@ def parseYml(f, key_checks:list=None) -> dict:
 
     key_checks = [] if not key_checks else key_checks
 
-    values = loadYml(f, Loader=SafeLoader)
+    try:
+
+        values = loadYml(f, Loader=SafeLoader)
+
+    except Exception as e:
+
+        print(
+            '\n\n{e}\n\n'
+            'Failed to parse the YAML file due to the above error.\n'
+            'Is it properly formatted?\n'
+            "Here's a quick linter: "
+            'https://codebeautify.org/yaml-validator')
 
     keys = values.keys()
 
@@ -154,7 +167,8 @@ def get_user_input(m:str) -> str:
 
     return uinput
 
-def run_db_command(parser:argparse.ArgumentParser, args=None) -> None:
+def run_db_command(parser:argparse.ArgumentParser, args=None,
+        manager=None, associate_spray_values=True) -> None:
     '''Run a database management command.
 
     Args:
@@ -209,18 +223,24 @@ def run_db_command(parser:argparse.ArgumentParser, args=None) -> None:
     # INITIALIZE THE MANAGER
     # ======================
 
-    try:
-        manager = Manager(args.database)
-    except Exception as e:
-        logger.info('Failed to initialize the database manager')
-        raise e
+    if manager is None:
+
+        try:
+            manager = Manager(args.database)
+        except Exception as e:
+            logger.info('Failed to initialize the database manager')
+            raise e
 
     # ======================
     # EXECUTE THE SUBCOMMAND
     # ======================
 
     logger.info(f'Executing command')
-    args.cmd(args, logger, manager)
+    if args.cmd == handle_values:
+        args.cmd(args, logger, manager,
+            associate_spray_values=associate_spray_values)
+    else:
+        args.cmd(args, logger, manager)
     logger.info('Execution finished. Exiting.')
 
 def handle_keyboard_interrupt(brute,exception):
@@ -232,7 +252,7 @@ def handle_keyboard_interrupt(brute,exception):
     if resp == 'y':
         print('Kill request received')
         print('Monitoring final processes completion')
-        bf.shutdown()
+        bf.shutdown(complete=False)
         print('Exiting')
         exit()
     else:
@@ -344,6 +364,8 @@ if __name__ == '__main__':
 
         if db_args:
 
+            manager = Manager(yargs['database'])
+
             for cmd, argset in db_args.items():
 
                 if not isinstance(argset, dict):
@@ -368,7 +390,10 @@ if __name__ == '__main__':
 
                         _args += [BFT.format(flag=swapScore(flag))]+values
 
-                run_db_command(db_sp, _args)
+                run_db_command(db_sp, _args, manager=manager,
+                    associate_spray_values=False)
+
+            manager.associate_spray_values()
 
         # =====================
         # DO BRUTE FORCE ATTACK
@@ -500,6 +525,10 @@ if __name__ == '__main__':
     
         # Log Levels
         config.log_level = args.log_level
+
+        config.timezone = args.timezone
+        config.blackout_start = args.blackout_start
+        config.blackout_stop = args.blackout_stop
     
         # Configure an exception handler for keyboard interrupts    
         config.exception_handlers={KeyboardInterrupt:handle_keyboard_interrupt}

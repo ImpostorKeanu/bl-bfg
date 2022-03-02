@@ -30,16 +30,32 @@ subparsers = parser.add_subparsers(title='Brute Force Modules',
                 '--help flag to the module to get help related to' \
                 ' module-level parameters.')
 
-# Add each module as a subcommand
+# ===========================
+# LOAD MODULES AS SUBCOMMANDS
+# ===========================
+
 for f in files:
 
-    # Create the name for the module and subcommand
-    name = '.'.join(str(f.absolute()).split('/')[-3:]).strip('.py')
+    try:
 
-    # Import the module
-    module = import_module('bfg.modules.'+name)
+        # Create the name for the module and subcommand
+        name = '.'.join(str(f.absolute()).split('/')[-3:]).strip('.py')
 
-    # Validate the module and build the interface components
-    module.Module.validate()
-    module.Module.build_interface(subparsers)
+        # Import the module
+        module = import_module('bfg.modules.'+name)
 
+        # Validate the module and build the interface components
+        module.Module.validate()
+        module.Module.build_interface(subparsers)
+
+    except Exception as e:
+
+        # =============================
+        # CLEANLY HANDLE FAILED MODULES
+        # =============================
+
+        print(
+            'Failed to load module: {file}\n'
+            'Reason:\n\n{error}\n\n'.format(
+                file=f,
+                error=e))

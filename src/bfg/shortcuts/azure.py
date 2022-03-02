@@ -958,7 +958,7 @@ COMMON_CLIENT_IDS = CIDS = \
         'AzureAndroidApp': ['0c1307d4-29d6-4389-a11c-5cbe7f65d7fa'],
         'IntuneMAMclientresource:https://intunemam.microsoftonline.com': ['6c7e8096-f593-4d72-807f-a5f86dcc9c77'],
         'Microsoft.AAD.BrokerPluginresource:https://cs.dds.microsoft.com': ['6f7e0f60-9401-4f5b-98e2-cf15bd5fd5e3'],
-        'MicrosoftAADCloudAP': ['38aa3b87-a06d-4817-b275–7a316988d93b'],
+        'MicrosoftAADCloudAP': ['38aa3b87-a06d-4817-b275-7a316988d93b'],
         'MicrosoftAuthenticationBroker(AzureMDMclient)': ['29d9ed98-a469-4536-ade2-f981bc1d605e'],
         'MicrosoftExchangeRESTAPIBasedPowershell': ['fb78d390-0c51-40cd-8e17-fdbfab77341b'],
         'Microsoft_AAD_RegisteredApps': ['18ed3507-a475-4ccb-b669-d66bc9f2a36e'],

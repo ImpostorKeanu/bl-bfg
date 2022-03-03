@@ -1,0 +1,48 @@
+database: attack_ms_graph_example.db
+brute-force:
+
+  # =====================
+  # ATTACK CONFIGURATIONS
+  # =====================
+  #
+  # This attack configuration is conservative:
+  #
+  # - Guesses only 1 user at a time
+  # - Two passwords for that user
+  # - 1-5 seconds rest between guesses
+  # - 1.5-2 hour wait between guess rounds
+  # - Randomized client ID
+  # - Randomized resource URL
+
+  log-file: attack_ms_graph_example.log
+
+  stop-on-valid: false
+  parallel-guess-count: 1
+  auth-threshold: 2
+
+  auth-jitter-min: 1s
+  auth-jitter-max: 5s
+
+  threshold-jitter-min: 1.5h
+  threshold-jitter-max: 2h
+
+  module:
+    name: ms_graph
+    args:
+      client-id: RANDOM
+      resource-url: RANDOM
+
+      # For FireProx URL
+      #url: https://your/fireprox/url
+
+      # Uncomment to randomize user agent
+      # Defaults to MS Teams :)
+      #user-agent: RANDOM
+      
+      # For SOCKS/HTTP proxies
+      #proxies:
+        ## HTTP (Burp)
+        #- https:http://127.0.0.1:8080
+        # SOCKS
+        #- https:socks://127.0.0.1:1080
+

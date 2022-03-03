@@ -3,9 +3,6 @@
 # made available. Call loader functions to populate the variables.
 
 from pathlib import Path
-from logging import getLogger
-
-log = getLogger('bfg.data')
 
 DATASETS_PATH = Path(__file__).parent / 'datasets'
 USER_AGENT_STRINGS = UAS = []
@@ -48,8 +45,6 @@ def loadUserAgents(path:str=None, force=False) -> None:
     path = Path(path) if path else DATASETS_PATH / 'ua_strings.txt'
 
     if not path.exists():
-
-        log.general(f'Fatal: User agent string source missing!')
 
         raise FileNotFoundError(
             'Source for user agent strings source was not found: ' +

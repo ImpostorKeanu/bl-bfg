@@ -1,0 +1,53 @@
+database: db_values_from_file_example.db
+manage-db:
+
+  # ===============
+  # DATABASE VALUES
+  # ===============
+
+  import-credential-values:
+
+    credentials:
+      - username1:password1
+      - username2:password3
+
+    credential-files:
+      # Must be newline delimited lines like > username:password
+      - /tmp/credentials.txt
+
+  import-spray-values:
+
+    usernames:
+      - username2
+      - username3
+      - username4
+    
+    passwords:
+      - password2
+      - password3
+      - password4
+
+    credentials:
+      # Will be parsed as individual spray values
+      - username5:password5
+
+    username-files:
+      # Must be newline delimited username values
+      - /tmp/usernames.txt
+
+    password-files:
+      # Must be newline delimited password values
+      - /tmp/passwords.txt
+
+    credential-files:
+      # Must be newline delimited lines like > username:password
+      # Will be imported as individual spray values
+      - /tmp/credentials.txt
+
+  prioritize-values:
+    prioritize: true
+    usernames:
+      - username3
+      - username4
+    passwords:
+      - password2

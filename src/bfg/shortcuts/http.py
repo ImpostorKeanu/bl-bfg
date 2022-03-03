@@ -8,10 +8,7 @@ from bruteloops.db_manager import csv_split
 from functools import wraps
 from random import randint
 from inspect import getargspec
-from logging import getLogger,INFO
 import pdb
-
-brute_logger = getLogger('BruteLoops.example.shortcuts.http')
 
 warnings.filterwarnings('ignore')
 PROXY_FORMAT='<http|https>:<Proxy URI>'

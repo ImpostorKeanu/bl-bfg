@@ -1,4 +1,4 @@
-database: /tmp/test.db
+database: full_attack_example.db
 manage-db:
 
   # ===============
@@ -7,16 +7,9 @@ manage-db:
 
   import-credential-values:
 
-    # credential-delimiter: ":"
-
     credentials:
       - username1:password1
       - username2:password3
-
-    # credential-files:
-    #   - /tmp/credentials.txt
-    # csv-files:
-    #   - /tmp/credentials.csv
 
   import-spray-values:
 
@@ -24,17 +17,14 @@ manage-db:
       - username2
       - username3
       - username4
-
-    # username-files:
-    #   - /tmp/usernames.txt
     
     passwords:
       - password2
       - password3
       - password4
 
-    # password-files:
-    #   - /tmp/passwords.txt
+    credentials:
+      - username5:password5
 
   prioritize-values:
     prioritize: true
@@ -50,17 +40,17 @@ brute-force:
   # ATTACK CONFIGURATIONS
   # =====================
 
-  log-file: /tmp/test.log
+  log-file: full_attack_example.log
 
   stop-on-valid: false
-  parallel-guess-count: 4
-  auth-threshold: 2
+  parallel-guess-count: 1
+  auth-threshold: 1
 
-  auth-jitter-min: 1s
-  auth-jitter-max: 10s
+  auth-jitter-min: 0.01s
+  auth-jitter-max: 0.01s
 
-  threshold-jitter-min: 1m
-  threshold-jitter-max: 3m
+  threshold-jitter-min: 1s
+  threshold-jitter-max: 3s
 
   module:
     name: testing.fake

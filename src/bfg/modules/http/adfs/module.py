@@ -4,7 +4,6 @@ from bfg.shortcuts.http import Module,HTTPModule
 from logging import getLogger,INFO
 from time import sleep
 
-brute_logger = getLogger('BruteLoops.example.modules.http.adfs')
 getLogger('urllib3.connectionpool').setLevel(INFO)
 
 class Module(HTTPModule):

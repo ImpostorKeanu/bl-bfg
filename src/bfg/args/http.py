@@ -34,6 +34,7 @@ def proxies(name_or_flags=('--proxies',),
 
 @argument
 def headers(name_or_flags=('--headers',),
+        nargs='+',
         required=False,
         help='Space delimited static HTTP headers to pass along to '
             'each request. Note that each header must be formatted '

@@ -65,6 +65,17 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
 
         return CRED_FAILED, USERNAME_INVALID, [message]
 
+    elif error_code == 'AADSTS90019':
+
+        # =====================
+        # NO TENANT INFORMATION
+        # =====================
+
+        message += 'No tenant-identifying information supplied in ' \
+            'the authentication data, e.g. domain name.'
+
+        return CRED_FAILED, USERNAME_INVALID, [message]
+
     elif error_code == 'AADSTS50056':
 
         # =======================================
@@ -110,7 +121,10 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
         # SOMETHING WENT....EVEN WORSE?
         # =============================
 
-        message += 'Unhandled Azure AD error code!'
+        message += 'Unhandled Azure AD error code'
+        if error_code in ERROR_CODES:
+            message += '-> {}'.format(ERROR_CODES[error_code])
+
         return CRED_FAILED, True, [message]
 
 def getRandomListItem(lst:list):

@@ -1,0 +1,35 @@
+database: db_values_example.db
+manage-db:
+
+  # ===============
+  # DATABASE VALUES
+  # ===============
+
+  import-credential-values:
+
+    credentials:
+      - username1:password1
+      - username2:password3
+
+  import-spray-values:
+
+    usernames:
+      - username2
+      - username3
+      - username4
+    
+    passwords:
+      - password2
+      - password3
+      - password4
+
+    credentials:
+      - username5:password5
+
+  prioritize-values:
+    prioritize: true
+    usernames:
+      - username3
+      - username4
+    passwords:
+      - password2

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
+import pdb
+import IPython
+from sys import exit
+
 import argparse
+from bruteloops.args import timezone_parser
 from bruteloops.db_manager import *
 from bruteloops.jitter import Jitter
 from bruteloops.brute import BruteForcer
@@ -37,14 +42,17 @@ AART = \
 # GLOBAL VARIABLES
 # ================
 
-# Shared logger object
-logger=None
+def initLoggers(timezone=None):
 
-# Database manager object
-manager=None
+    db_logger = getLogger('bfg.dbmanager',
+        log_level=10,
+        timezone=timezone)
 
-# Shared args variables
-args=None
+    brute_logger = getLogger('bfg',
+        log_level=10,
+        timezone=timezone) 
+
+    return db_logger, brute_logger
 
 def ymlBoolToFlag(flag:str, b:bool) -> str:
     '''Parse a YAML boolean value to it's corresponding --{flag}
@@ -109,6 +117,16 @@ def findFile(path) -> Path:
         raise FileNotFoundError(args.yaml_file)
     return path
 
+def processYmlArg(param, arg) -> list:
+
+    param = swapScore(param)
+    if isinstance(arg, bool):
+        return [ymlBoolToFlag(flag=param, b=arg)]
+    elif isinstance(arg, list):
+        return [BFT.format(flag=param), *ymlListToValue(arg)]
+    else:
+        return [FT.format(flag=param, value=arg)]
+
 def parseYml(f, key_checks:list=None) -> dict:
     '''Load an open YAML file into memory as a JSON object,
     ensure that each high-level key is supplied in key_checks,
@@ -132,11 +150,12 @@ def parseYml(f, key_checks:list=None) -> dict:
     except Exception as e:
 
         print(
-            '\n\n{e}\n\n'
+            f'\n\n{e}\n\n'
             'Failed to parse the YAML file due to the above error.\n'
             'Is it properly formatted?\n'
             "Here's a quick linter: "
             'https://codebeautify.org/yaml-validator')
+        exit()
 
     keys = values.keys()
 
@@ -167,8 +186,8 @@ def get_user_input(m:str) -> str:
 
     return uinput
 
-def run_db_command(parser:argparse.ArgumentParser, args=None,
-        manager=None, associate_spray_values=True) -> None:
+def run_db_command(parser:argparse.ArgumentParser, logger,
+        args=None, manager=None, associate_spray_values=True) -> None:
     '''Run a database management command.
 
     Args:
@@ -188,13 +207,6 @@ def run_db_command(parser:argparse.ArgumentParser, args=None,
     if not args.cmd:
         parser.print_help()
         exit()
-
-    # =================
-    # CONFIGURE LOGGING
-    # =================
-
-    logger = getLogger('bfg.dbmanager', log_level=10)
-    logger.info('Initializing database manager')
 
     # =======================
     # HANDLE MISSING DATABASE
@@ -235,13 +247,11 @@ def run_db_command(parser:argparse.ArgumentParser, args=None,
     # EXECUTE THE SUBCOMMAND
     # ======================
 
-    logger.info(f'Executing command')
     if args.cmd == handle_values:
         args.cmd(args, logger, manager,
             associate_spray_values=associate_spray_values)
     else:
         args.cmd(args, logger, manager)
-    logger.info('Execution finished. Exiting.')
 
 def handle_keyboard_interrupt(brute,exception):
 
@@ -296,14 +306,14 @@ if __name__ == '__main__':
 
     # Database management
     db_sp = cli_subparsers.add_parser('manage-db',
-        parents=[db_parser],
+        parents=[db_parser, timezone_parser],
         description='Manage the attack database.',
         help='Manage the attack database.')
     db_sp.set_defaults(parser=db_sp, mode='db')
 
     # Brute force
     brute_sp = cli_subparsers.add_parser('brute-force',
-        parents=[modules_parser],
+        parents=[modules_parser, timezone_parser],
         description='Perform a brute-force attack.',
         help='Perform a brute-force attack.')
 
@@ -338,6 +348,20 @@ if __name__ == '__main__':
         args.parser.print_help()
         exit()
 
+    db_logger, brute_logger = None, None
+
+    # ===================
+    # HANDLE THE TIMEZONE
+    # ===================
+
+    timezone = None
+    if hasattr(args, 'timezone'):
+        timezone = args.timezone
+        del(args.timezone)
+
+    if timezone:
+        db_logger, brute_logger = initLoggers(timezone)
+
     # =====================
     # HANDLE YAML ARGUMENTS
     # =====================
@@ -352,6 +376,13 @@ if __name__ == '__main__':
 
         with path.open() as yfile:
             yargs = parseYml(yfile, key_checks=('database',))
+
+        if 'timezone' in yargs:
+            timezone = yargs['timezone']
+            del(yargs['timezone'])
+
+        if not db_logger or not brute_logger:
+            db_logger, brute_logger = initLoggers(timezone)
 
         db_arg = '--database=' + yargs['database']
 
@@ -376,21 +407,10 @@ if __name__ == '__main__':
                         'arguments.')
 
                 _args = [cmd, db_arg]
-
                 for flag, values in argset.items():
+                    _args += processYmlArg(param=flag, arg=values)
 
-                    if isinstance(values, bool):
-
-                        _args.append(
-                            ymlBoolToFlag(flag=flag, b=values))
-
-                    else:
-
-                        values = ymlListToValue(values)
-
-                        _args += [BFT.format(flag=swapScore(flag))]+values
-
-                run_db_command(db_sp, _args, manager=manager,
+                run_db_command(db_sp, db_logger, _args, manager=manager,
                     associate_spray_values=False)
 
             manager.associate_spray_values()
@@ -414,55 +434,43 @@ if __name__ == '__main__':
             for k,v in bf_args.items():
     
                 if k != 'module':
-    
-                    # =============================
-                    # CAPTURE A NON-MODULE ARGUMENT
-                    # =============================
 
-                    if isinstance(v, bool):
-                        
-                        brute_cli_args.append(
-                            ymlBoolToFlag(flag=k, b=v))
+                    # ====================
+                    # NON-MODULE ARGUMENTS
+                    # ====================
 
-                    else:
-
-                        brute_cli_args.append(
-                            FT.format(flag=swapScore(k), value=v))
+                    # Capture non-module arguments
+                    brute_cli_args += processYmlArg(
+                        param=k,
+                        arg=v)
     
                 else:
     
-                    # =========================
-                    # CAPTURE A MODULE ARGUMENT
-                    # =========================
+                    # ===============
+                    # MODULE ARGUMENT
+                    # ===============
 
-                    name, args = v.get('name'), v.get('args')
+                    name, args = v.get('name'), v.get('args', {})
     
                     if not name:
     
                         raise ValueError(
                             f'"name" field must be defined under "module".')
-    
-                    elif not args:
-    
-                        raise ValueError(
-                            f'"args" field must be defined under "module".')
-    
+   
+                    # Append the module name to the argument list
                     brute_cli_args.append(name)
                     
                     for ik, iv in args.items():
 
-                        # Convert list arguments back to a 
-                        # space delimited string value
-                        if isinstance(iv, list):
-                            iv = ' '.join(iv)
-    
-                        brute_cli_args.append(
-                            FT.format(
-                                flag=swapScore(ik),
-                                value=iv))
+                        brute_cli_args += processYmlArg(
+                            param=ik,
+                            arg=iv)
 
             brute_cli_args.append(db_arg)
             args = brute_sp.parse_args(brute_cli_args)
+
+    if not db_logger or not brute_logger:
+        db_logger, brute_logger = initLoggers(timezone)
 
     if args.mode == 'db':
 
@@ -474,7 +482,7 @@ if __name__ == '__main__':
             db_parser.print_help()
             exit()
 
-        run_db_command(parser)
+        run_db_command(parser, db_logger)
 
     if args.mode == 'brute':
 
@@ -526,25 +534,25 @@ if __name__ == '__main__':
         # Log Levels
         config.log_level = args.log_level
 
-        config.timezone = args.timezone
-        config.blackout_start = args.blackout_start
-        config.blackout_stop = args.blackout_stop
+        config.timezone = timezone
+
+        if hasattr(args, 'blackout_start') and \
+                hasattr(args, 'blackout_stop'):
+            config.blackout_start = args.blackout_start
+            config.blackout_stop = args.blackout_stop
     
         # Configure an exception handler for keyboard interrupts    
         config.exception_handlers={KeyboardInterrupt:handle_keyboard_interrupt}
         
         # Always validate the configuration.
         config.validate()
-       
-        # Configure logging
-        logger = getLogger('bfg', log_level=10)
         
         try:
         
-            logger.info('Initializing attack')
+            brute_logger.info('Initializing attack')
             bf = BruteForcer(config)
             bf.launch()
-            logger.info('Attack complete')
+            brute_logger.info('Attack complete')
             
         except Exception as e:
 

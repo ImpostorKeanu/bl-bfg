@@ -8,6 +8,8 @@ from bruteloops.db_manager import csv_split
 from functools import wraps
 from random import randint
 from inspect import getargspec
+from requests import Session, Response
+from inspect import signature
 import pdb
 
 warnings.filterwarnings('ignore')
@@ -22,6 +24,67 @@ PROXY_RE= re.compile('^(?P<app_proto>(http|https)?):(?P<proxy_uri>.+)', re.I)
 
 # Requests supports only http, https, and socs5 proxies
 PROXY_URI_RE=re.compile('^(http|https|socks5)://(.+):[0-9]{1,5}')
+
+class HTTPSession(Session):
+    '''Generic session class. Interscepts the default `request` method
+    to inject the `verify_ssl` and `allow_redirects` attributes. Also
+    updates headers for the session.
+    '''
+
+    def __init__(self,
+            headers:dict=None,
+            allow_redirects:bool=True, verify_ssl:bool=False,
+            *args, **kwargs):
+        '''Initialize a session object.
+
+        Args:
+            headers: A dictionary of headers to include.
+            allow_redirects: Determines if redirects should be allowed.
+            verify_ssl: Disable/enable SSL certificate verification.
+
+        Raises:
+            ValueError - When a non-dict value is supplied for headers.
+        '''
+
+        # Call parent __init__ first
+        super().__init__(*args, **kwargs)
+
+        # Configure redirects
+        self.allow_redirects=allow_redirects
+
+        # using the setattr builtin here because requests.Session
+        # doesn't care for new instance variables beinga assigned
+        setattr(self, 'verify_ssl', verify_ssl)
+
+        if headers == None:
+            headers = dict()
+        elif headers and not isinstance(headers, dict):
+            raise ValueError(
+                'Headers must be supplied as a dictionary. Got: '
+                f'{type(headers)}'
+            )
+
+        # Update headers
+        self.headers.update(headers)
+
+    def request(self, *args, **kwargs) -> Response:
+        '''Override request headers to send additional
+        configuration variables with each request.
+        '''
+
+        pmeth = super().request
+
+        try:
+
+            sig = signature(pmeth)
+            bound = sig.bind(*args, **kwargs)
+            bound.arguments['allow_redirects'] = self.allow_redirects
+            bound.arguments['verify'] = self.verify_ssl
+            return pmeth(**bound.arguments)
+
+        except TypeError as e:
+
+            return pmeth(*args, **kwargs)
 
 def handleUA(f):
     '''A decorator to handle user agent strings, supporting a
@@ -145,7 +208,6 @@ class HTTPModule(Module):
                 raise ValueError(
                         f'Invalid header supplied: {header}'
                     )
-
         # ========================
         # OTHER INSTANCE VARIABLES
         # ========================

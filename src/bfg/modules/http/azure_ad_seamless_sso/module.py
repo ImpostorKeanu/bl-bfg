@@ -20,13 +20,6 @@ SOAP_DICT_PATH = 'S:Envelope-S:Body-S:Fault-S:Detail-psf:' \
 SSO_TIME_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 SOAP_DOC = loadAzureSSOSoap()
 
-def strip_slash(s):
-
-    if s and s[-1] == '/':
-        s=s[:len(s)-1]
-
-    return s
-
 class Session(Session):
 
     def __init__(self, url=None, headers=None, allow_redirects=None,

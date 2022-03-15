@@ -27,7 +27,7 @@ brute-force:
   threshold-jitter-max: 2h
 
   module:
-    name: ms_graph
+    name: http.ms_graph
     args:
       client-id: RANDOM
       resource-url: RANDOM

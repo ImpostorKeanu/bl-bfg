@@ -5,6 +5,9 @@ from bfg.args import http as http_args
 from bfg.shortcuts.http import HTTPModule, handleUA
 from bfg.modules.http.ms_graph import module as graph
 from bfg.modules.http.azure_ad_seamless_sso import module as sso
+from bfg.shortcuts.azure.request_profiles import MicrosoftOnline
+
+MSOL_DEFAULTS = MicrosoftOnline()
 
 def msol_url():
     '''Return an argparse argument for the MSOL URL.
@@ -13,7 +16,7 @@ def msol_url():
     return http_args.url(
         name_or_flags=('--url',),
         required=False,
-        default=graph.MSONLINE_URL,
+        default=MSOL_DEFAULTS.url,
         help='Microsoft Online URL to target. Default: %(default)s')
 
 def azure_sso_url():

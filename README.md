@@ -57,9 +57,9 @@ bfg --help
 See the docs directory for additional documentation:
 
 - [Installation](docs/Installation.md)
-- [Example Attack](docs/Example Attack.md)
-- [YAML Attack Profiles](docs/YAML Attack Profiles.md)
-- [Docker](docs/Docker Container.md)
+- [Example Attack](<docs/Example Attack.md>)
+- [YAML Attack Profiles](<docs/YAML Attack Profiles.md>)
+- [Docker](<docs/Docker Container.md>)
 
 # Current Attack Modules
 

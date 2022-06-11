@@ -36,11 +36,10 @@ class Module:
 
     '''# Base Module Class
 
-    This class serves as a template for brute force modules within this
-    example directory. It builds the interface subcommands by
-    inspecting the __init__ method while also enforcing restrictions on
-    the __call__ method to ensure BruteLoops can make authentication
-    callbacks.
+    This class serves as a template for brute force modules. It builds
+    the interface subcommands by inspecting the __init__ method while
+    also enforcing restrictions on the __call__ method to ensure
+    BruteLoops can make authentication callbacks.
 
     # The __init__ Method
 
@@ -82,6 +81,8 @@ class Module:
     def initialize(cls, args):
         '''Initialize and return the underlying brute force module.
         '''
+
+        print('Initializing module!')
 
         # Translate the argparse arguments to a dictionary
         args = vars(args)

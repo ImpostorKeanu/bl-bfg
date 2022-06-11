@@ -29,6 +29,7 @@ setuptools.setup(
         'bruteloops >= 0.2',
         'requests_ntlm == 1.1.0',
         'pysmb == 1.1.27',
+        'lxml >= 4.6.4',
         'pyyaml',
         'xmltodict',
         'dict-toolbox']

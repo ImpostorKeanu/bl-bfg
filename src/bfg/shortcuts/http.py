@@ -50,7 +50,10 @@ def handleUA(f):
                 self.user_agent = data.UAS[randint(0, len(data.UAS)-1)]
 
         # Set the header value
-        self.headers['User-Agent'] = self.user_agent
+        if self.user_agent:
+            self.headers['User-Agent'] = self.user_agent
+        elif not self.headers.get('User-Agent'):
+            self.headers['User-Agent'] = DEFAULT_UA
 
         return f(self, username, password, *args, **kwargs)
 
@@ -153,6 +156,10 @@ class HTTPModule(Module):
         self.randomize_ua = False
         if self.user_agent == 'RANDOM':
             self.randomize_ua = True
+            self.headers['User-Agent'] = DEFAULT_USER_AGENT 
+        elif self.user_agent:
+            self.headers['User-Agent'] = self.user_agent
+        else:
             self.headers['User-Agent'] = DEFAULT_USER_AGENT 
 
     @property

@@ -10,4 +10,13 @@ Use either of the following commands to create a database:
 
 # Inserting/Importing Database Values
 
+See the following resources to learn about importing database
+values:
 
+- [Spray Values](<docs/Password Spraying.md>)
+- [Credential Values](<docs/Credential Guessing and Stuffing.md>)
+
+Keep in mind that YAML files can be used to import values as
+well. See this file for an example:
+
+- [DB Values from File](<yaml_examples/db_values_from_file.yml>)

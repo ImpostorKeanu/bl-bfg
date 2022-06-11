@@ -60,6 +60,7 @@ See the docs directory for additional documentation:
 - [Example Attack](<docs/Example Attack.md>)
 - [YAML Attack Profiles](<docs/YAML Attack Profiles.md>)
 - [Docker](<docs/Docker Container.md>)
+- [FAQs](<docs/faqs.md>)
 
 # Current Attack Modules
 

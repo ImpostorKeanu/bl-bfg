@@ -279,6 +279,8 @@ class Module(HTTPModule):
                         # Return when successful authentication occurs
                         return out
 
+                    return out
+
         except Exception as e:
 
             return dict(

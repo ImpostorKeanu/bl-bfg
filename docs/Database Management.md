@@ -23,7 +23,10 @@ well. See this file for an example:
 
 # Diagrams
 
-## Value Imports
+## Value Imports Flowchart
+
+This diagram illustrates the flow of command flags to import values into
+an SQLite database.
 
 ``````mermaid
 flowchart

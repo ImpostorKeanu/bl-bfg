@@ -412,7 +412,7 @@ if __name__ == '__main__':
                 run_db_command(db_sp, db_logger, _args, manager=manager,
                     associate_spray_values=False)
 
-            manager.associate_spray_values()
+            manager.associate_spray_values(logger=db_logger)
 
         # =====================
         # DO BRUTE FORCE ATTACK
@@ -482,6 +482,12 @@ if __name__ == '__main__':
             exit()
 
         run_db_command(parser, db_logger)
+
+        # This is bollucks.....
+        # Quick fix to correct a bug where associations don't
+        # occur between username and password values
+        manager = Manager(args.database)
+        manager.associate_spray_values()
 
     if args.mode == 'brute':
 

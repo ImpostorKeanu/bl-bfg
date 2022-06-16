@@ -7,7 +7,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setuptools.setup(
     name='bl-bfg',
-    version='0.5.4.2',
+    version='0.5.4.3',
     author='Justin Angel',
     author_email='justin@arch4ngel.ninja',
     description='A simple password guessing framework.',

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import warnings
 warnings.filterwarnings('ignore')
-from re import search
+from re import search, compile
 import requests
 from bfg.args import http as http_args
 from bfg.shortcuts.http import HTTPModule, handleUA, defaultHTTPArgs
+from bruteloops.logging import getLogger, GENERAL_EVENTS
 
-FAIL_VALUE = '"errorCode":"E0000004","errorSummary":"Authentication ' \
-        'failed"'
+FAIL_VALUE = 'E0000004'
 
 # =================
 # MODULE PROPERTIES
@@ -44,8 +44,6 @@ REFERER_URL_HELP = \
 'of the referer header found in the same request described in ' \
 '`cookies_url`.'
 
-
-
 class Module(HTTPModule):
 
     brief_description = 'Okta JSON API'
@@ -71,6 +69,8 @@ class Module(HTTPModule):
 
         self.cookies_url = cookies_url
         self.cookies_referrer_url = cookies_referrer_url
+        self.log = getLogger('okta', log_level=GENERAL_EVENTS)
+        self.username_reg = compile('^(.+)(@|\\\\|/)(.+)')
 
     def __call__(self,username,password,*args,**kwargs):
 
@@ -107,17 +107,36 @@ class Module(HTTPModule):
           cookies_url argument accordingly
         '''
 
+        bad_creds = dict(outcome=0, username=username,
+                password=password,events=list())
+
         try:
             # parse the username and domain from the username
-            groups = re.search('^(.+)(@|\\\\|/)(.+)',username).groups()
+            match = search(self.username_reg, username)
+
+            if match is None:
+
+                bad_creds['events'].append(
+                    f'Invalid username format for "{username}".'
+                    ' Username must be in <username>@<domain>.com -- '
+                    'Skipping.')
+
+                return bad_creds
+
+            else:
+
+                groups = match.groups()
 
             # update the cookies_url value
-            cookies_url = re.replace('{USERNAME}',self.cookies_url,
-                    groups[0])
-            cookies_url = re.replace('{DOMAIN}',cookies_url,groups[2])
-        except Exception as exception:
-            return [0, username, password]
+            cookies_url = self.cookies_url.replace('{USERNAME}',
+                groups[0])
+            cookies_url = self.cookies_url.replace('{DOMAIN}',
+                groups[2])
 
+        except Exception as e:
+
+            bad_creds['events'].append(f'Unhandled exception: {e}')
+            return bad_creds
 
         # ==============
         # UPDATE HEADERS
@@ -129,8 +148,8 @@ class Module(HTTPModule):
 
         headers = self.headers
 
-        if self.cookies_referer_url:
-            headers['Referer'] = cookies_referer_url
+        if self.cookies_referrer_url:
+            headers['Referer'] = cookies_referrer_url
 
         # =============================
         # BUILD SESSION AND GET COOKIES
@@ -174,8 +193,7 @@ class Module(HTTPModule):
         # ===================================
     
         # verify credentials and return outcome
-        if resp.status_code == 401 and \
-                not re.search(FAIL_VALUE,resp.content):
+        if resp.status_code == 401 or resp.text.find(FAIL_VALUE) >-1:
             return dict(outcome=0, username=username, password=password)
         else:
             return dict(outcome=1, username=username, password=password)

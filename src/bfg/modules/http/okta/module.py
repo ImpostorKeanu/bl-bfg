@@ -36,7 +36,10 @@ COOKIES_URL_HELP = \
 'URL that issues cookies required for authentication. Should be a URL ' \
 'like "https://<target>.okta.com/login/login.htm?fromURI=<encoded_param>". ' \
 'Authenticate to the application that uses Okta as an identity provider ' \
-'while proxying through Burp to identify this value.'
+'while proxying through Burp to identify this value. FORMATTING NOTE: Update the ' \
+'URL to match the following while replacing the username and domain values ' \
+'with template strings: https://<target>.okta.com/login/login.htm?fromURI=....' \
+'....{USERNAME}%2540{DOMAIN}......'
 
 REFERER_URL_HELP = \
 'The URL that should be embedded in the HTTP referer header when ' \

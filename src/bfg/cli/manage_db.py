@@ -25,7 +25,7 @@ def dump_strict_credentials(args, logger, manager):
     '''
 
     logger.info('Dumping static credentials')
-    credentials = manager.get_strict_credentials(args.credential_delimiter)
+    credentials = manager.get_strict_credentials()
 
     if len(credentials) == 0:
         logger.info('No static credentials in database')
@@ -35,7 +35,7 @@ def dump_strict_credentials(args, logger, manager):
 
     for r in credentials:
         print(f'{r.username.value}{args.credential_delimiter}' \
-              f'{r.password}')
+              f'{r.password.value}')
 
     logger.info('Strict credentials dumped')
 
@@ -49,7 +49,7 @@ def handle_values(args, logger, manager, associate_spray_values=True):
 
     for handle in ['usernames','passwords','credentials',
             'username_files','password_files','credential_files',
-            'csv_files']:
+            'csv_files', 'credential_delimiter']:
         if hasattr(args,handle): new_args[handle] = getattr(args,handle) 
 
     manager.manage_db_values(**new_args, logger=logger)
@@ -111,36 +111,36 @@ parser_dump_valid.set_defaults(cmd=dump_valid)
 # ==================================
 
 parser_dump_strict_credentials = subparsers.add_parser(
-        'dump-credential-values',
-        description=('Dump scrict credentials, regardless of '
-                'of status from the database. This is a mean'
-                's of identifying which static values have b'
-                'een imported and can be used to obtain a li'
-                'st of values to be deleted from the attack.'
-                ' Use the dump_valid subcommand to dump vali'
-                'values, including strict records, from the '
-                'database.'),
-        help='Dump all credential values from the database.',
-        parents=[db_flag],
-        add_help=False)
+    'dump-credential-values',
+    description=
+        'Dump scrict credentials, regardless of of status from the '
+        'database. This is a means of identifying which static '
+        'values have been imported and can be used to obtain a list '
+        'of values to be deleted from the attack. Use the dump_valid '
+        'subcommand to dump valid values, including strict records, '
+        'from the database.',
+    help='Dump all credential values from the database.',
+    parents=[db_flag],
+    add_help=False)
+parser_dump_strict_credentials.add_argument('--credential-delimiter',
+    default=':', help=blargs.CREDENTIAL_DELIMITER)
+parser_dump_strict_credentials.set_defaults(cmd=dump_strict_credentials)
 
 # ========================
 # IMPORT VALUES SUBCOMMAND
 # ========================
 
 parser_import_values = subparsers.add_parser('import-spray-values',
-            description=('Import username and password values '
-                    'into the target database. NOTE: if crede'
-                    'ntial inputs are provided, they will be '
-                    'split into individual username and passw'
-                    'ord values and imported for spraying. Us'
-                    'the import-credentials subommand if you '
-                    'wish to import individual credentials th'
-                    'at will be paired individualy in the dat'
-                    'base.'),
-            help='Import values into the target database',
-            parents=[db_flag, blargs.input_parser,blargs.credential_parser],
-            add_help=False)
+    description=
+        'Import username and password values into the target '
+        'database. NOTE: if credential inputs are provided, they will '
+        'be split into individual username and password values and '
+        'imported for spraying. Use the import-credentials subcommand '
+        'if you wish to import individual credentials that will be '
+        'paired individualy in the database.',
+    help='Import values into the target database',
+    parents=[db_flag, blargs.input_parser,blargs.credential_parser],
+    add_help=False)
 parser_import_values.set_defaults(as_credentials=False, action='insert')
 
 # =============================
@@ -149,18 +149,17 @@ parser_import_values.set_defaults(as_credentials=False, action='insert')
 # TODO: TEST ME
 
 parser_import_credentials = subparsers.add_parser(
-        'import-credential-values',
-        description=('Import credential values into the target'
-                ' database. The username to password relations'
-                'hip is maintained in the data meaning t'
-                'hat individual guesses for the username to p'
-                'assword combination will be scheduled. No ad'
-                'ditional guesses will be made for the userna'
-                'me and the password will not be used for gue'
-                'sses targeting other usernames.'),
-        help='Import credential pairs into the target database',
-        parents=[db_flag, blargs.credential_parser],
-        add_help=False)
+    'import-credential-values',
+    description=
+        'Import credential values into the target database. '
+        'The username to password relationship is maintained in the '
+        'data meaning that individual guesses for the username to '
+        'password combination will be scheduled. No additional guesses '
+        'will be made for the username and the password will not be '
+        'used for guesses targeting other usernames.',
+    help='Import credential pairs into the target database',
+    parents=[db_flag, blargs.credential_parser],
+    add_help=False)
 parser_import_credentials.set_defaults(as_credentials=True,
         action='insert')
 
@@ -170,16 +169,15 @@ parser_import_credentials.set_defaults(as_credentials=True,
 # TODO: TEST ME; PAY ATTENTION TO CASCADING DELETIONS
 
 parser_delete_values = subparsers.add_parser('delete-spray-values',
-            description='Delete username and password values '
-                    'from the target database. NOTE: if crede'
-                    'ntials are supplied, then the username a'
-                    'nd password values are removed from the '
-                    'database entirely. Use the delete-creden'
-                    'tials subcommand if you wish to delete c'
-                    'redential records',
-            help='Delete values from the target database',
-            parents=[db_flag,blargs.input_parser,blargs.credential_parser],
-            add_help=False)
+    description=
+        'Delete username and password values from the target database. '
+        'NOTE: if credentials are supplied, then the username and '
+        'password values are removed from the database entirely. Use '
+        'the delete-credentials subcommand if you wish to delete '
+        'credential records',
+    help='Delete values from the target database',
+    parents=[db_flag,blargs.input_parser,blargs.credential_parser],
+    add_help=False)
 parser_delete_values.set_defaults(as_credentials=False, action='delete')
 
 # =============================
@@ -187,17 +185,16 @@ parser_delete_values.set_defaults(as_credentials=False, action='delete')
 # =============================
 # TODO: TEST ME
 parser_delete_credentials = subparsers.add_parser(
-        'delete-credential-values',
-        description=('Delete credential values from the target'
-                'database. This targets password to username '
-                'relationships, but a given username or passw'
-                'will be removed from the database entirely s'
-                'hould either no longer be associated with fu'
-                'ture guesses after the associations have bee'
-                'n removed'),
-        help='Delete credential pairs from the target database',
-        parents=[db_flag, blargs.credential_parser],
-        add_help=False)
+    'delete-credential-values',
+    description=
+        'Delete credential values from the target database. This '
+        'targets password to username relationships, but a given '
+        'username or passwwill be removed from the database '
+        'entirely should either no longer be associated with future '
+        'guesses after the associations have been removed',
+    help='Delete credential pairs from the target database',
+    parents=[db_flag, blargs.credential_parser],
+    add_help=False)
 parser_delete_credentials.set_defaults(as_credentials=True,
         action='delete')
 

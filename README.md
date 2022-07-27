@@ -1,4 +1,4 @@
-# Big Friggen Gun (BFG)
+# Big Friggin Gun (BFG)
 
 BFG is a simple modular framework to perform brute-force attacks. It uses
 the [BruteLoops](https://github.com/arch4ngel/BruteLoops) library for the

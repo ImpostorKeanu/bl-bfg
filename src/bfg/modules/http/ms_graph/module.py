@@ -184,6 +184,8 @@ class Module(HTTPModule):
                 'rvrsh3ll/aad-sso-enum-brute-spray',
         ]
 
+    verified_functional = True
+
     def __post_init__(self, client_id, resource_url,
             *args, **kwargs):
 

@@ -85,6 +85,8 @@ class Module(HTTPModule):
                 twitter='@ImposterKeanu'))
         ]
 
+    verified_functional = False
+
     @handleUA
     def __call__(self, username, password, *args, **kwargs):
 

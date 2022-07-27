@@ -47,6 +47,7 @@ class Module(HTTPModule):
         ]
 
     references = []
+    verified_functional = True
 
     def __post_init__(self, azure_sso_url, *args, **kwargs):
 

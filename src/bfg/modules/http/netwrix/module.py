@@ -55,6 +55,8 @@ class Module(HTTPModule):
                     twitter='@ImposterKeanu'))
         ]
 
+    verified_functional = False
+
     def __post_init__(self, domain, landing_path, login_path,
             *args, **kwargs):
 

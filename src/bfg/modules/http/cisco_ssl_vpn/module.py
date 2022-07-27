@@ -84,6 +84,15 @@ class Module(HTTPModule):
         'p/cisco_ssl_vpn.rb#L1'
     ]
 
+    verified_functional = False
+
+    notes = [
+        'Further testing is needed',
+        'Though functional, valid credentials have not been used to '
+        'verify if module logic properly detects successful '
+        'authentication.'
+    ]
+
     def __post_init__(self, path:str, groups_path:str, groups:list,
             *args, **kwargs):
         '''Set non-standard instance attributes and acquire the groups

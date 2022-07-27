@@ -153,6 +153,7 @@ class Module(HTTPModule):
     brief_description = 'Azure Active Directory AD Seamless SSO'
     description = 'Brute force the Azure AD SSO endpoint.'
     args = [url()]+http_args.getDefaults('url',invert=True)
+    verified_functional = False
     contributors = [
             dict(
                 name='Justin Angel [Creator]',

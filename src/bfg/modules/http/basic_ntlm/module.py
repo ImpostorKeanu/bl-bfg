@@ -18,6 +18,7 @@ class Module(HTTPModule):
                     company='Black Hills Information Security',
                     twitter='@ImposterKeanu'))
         ]
+    verified_functional = True
 
     @handleUA
     def __call__(self,username,password,*args,**kwargs):

@@ -84,6 +84,8 @@ class Module(HTTPModule):
                     twitter='@ImposterKeanu'))
         ]
 
+    verified_functional = False
+
     def __post_init__(self, landing_path, login_path, *args, **kwargs):
 
         self.origin_url=self.url

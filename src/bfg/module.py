@@ -1,6 +1,39 @@
 import argparse
 import inspect
 import re
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class ContributorModel(BaseModel):
+    '''Define contributor data structure.'''
+
+    name: str
+    additional: Optional[dict]
+
+class ModuleAttributes(BaseModel):
+    '''Attrubtes profile for all modules.'''
+
+    #name: str
+    #'Module name.'
+
+    brief_description: str
+    'Brief description that will be displayed in the help menu.'
+
+    description: str
+    'Lengthier description that will be displayed in module help.'
+
+    contributors: List[ContributorModel] = Field(default_factory=list)
+    'List of people who contributed to module development.'
+
+    references: List[str] = Field(default_factory=list)
+    'List of string references for the module.'
+
+    verified_functional: Optional[bool] = Field(False)
+    'Boolean flag that determines if the module has been verified ' \
+    'as functional.'
+
+    notes: Optional[List[str]] = Field(default_factory=list)
+    'List of string notes to display.'
 
 def bindSignatureArgs(func, src:dict) -> dict:
     '''
@@ -69,13 +102,25 @@ class Module:
     '''
 
     # Name for the module that'll be shown in logging
-    name = None
+    #name = None
 
     # Brief description to display in the help menu
     brief_description = None
 
     # Description of the module that'll be shown in the interface
     description = None
+
+    # List of dictionaries describing contributors
+    contributors = list()
+
+    # List of string references
+    references = list()
+
+    # Boolean determining if the module has been verified as functional
+    verified_functional = False
+
+    # List of string notes
+    notes = list()
 
     @classmethod
     def initialize(cls, args):
@@ -145,72 +190,51 @@ class Module:
         '''Use the inspect module to iterate over each parameter
         declared in __init__ and build an interface via argparse.
         '''
+        
+        # ==========================
+        # VALIDATE MODULE ATTRIBUTES
+        # ==========================
 
-        epilog = None
-        if hasattr(cls, 'contributors'):
+        attrs = ModuleAttributes(
+            **{
+                k:getattr(cls, k) for k in
+                ModuleAttributes.__fields__.keys()
+                if hasattr(cls, k)
+            }
+        )
 
-            # ==========================
-            # FORMAT MODULE CONTRIBUTORS
-            # ==========================
+        # ==============
+        # PREPARE EPILOG
+        # ==============
+
+        epilog = ''
+        if attrs.contributors:
 
             epilog = 'Contributors:\n\n'
 
-            if not isinstance(cls.contributors, list):
-
-                raise ValueError(
-                    'Module contributors must be a list of dictionary '
-                    f'values, not {type(cls.contributors)}')
-
-            for cont in cls.contributors:
-
-                if not isinstance(cont, dict):
-
-                    raise ValueError(
-                        'contributor records must be dictionaries, '
-                        f'not {type(cont)}')
-
-                name = cont.get('name')
-                additional = cont.get('additional')
-
-                if not name:
-
-                    raise ValueError(
-                        'contributor records must have a "name" field')
-
-                epilog += f'\n- {name}'
-
-                if additional:
-
-                    if not isinstance(additional, dict):
-
-                        raise ValueError(
-                            'additional field of contributor records '
-                            f'must be a dict, not {type(additional)}')
-
-                    for k,v in additional.items():
-
+            for c in attrs.contributors:
+                epilog += f'\n- {c.name}'
+                if c.additional:
+                    for k,v in c.additional.items():
                         epilog += f'\n  {k}: {v}'
-
 
                 epilog += '\n'
 
-        if hasattr(cls, 'references'):
-
-            # ========================
-            # FORMAT MODULE REFERENCES
-            # ========================
+        if attrs.references:
 
             epilog += f'\nReferences:\n'
-
-            references = cls.references
-
-            if not isinstance(references, list):
-
-                raise ValueError(
-                    f'References must be a list, got {type(references)}')
-
-            for ref in references:
+            for ref in attrs.references:
                 epilog += f'\n- {ref}'
+
+        # Handle notes
+        if attrs.notes:
+            epilog += f'\n\nNotes:\n'
+            for n in attrs.notes:
+                epilog += f'\n- {n}'
+
+        # Indicate if the module has been tested
+        fstatus = 'yes' if attrs.verified_functional else 'no'
+        epilog += '\n\nVerified as Functional: ' + fstatus
 
         # ======================
         # BUILD MODULE ARGUMENTS
@@ -224,7 +248,7 @@ class Module:
 
         parser = subparsers.add_parser(cls.get_handle(),
                 description=cls.description,
-                help=cls.brief_description,
+                help=cls.brief_description + f' (Tested: {fstatus})',
                 parents=cls.args,
                 formatter_class=argparse.RawDescriptionHelpFormatter,
                 epilog=epilog)

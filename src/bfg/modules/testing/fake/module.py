@@ -20,6 +20,7 @@ class Module(BLModule):
                     company='Black Hills Information Security',
                     twitter='@ImposterKeanu'))
         ]
+    verified_functional = True
 
     def __init__(self, username:str, password:str):
         '''Initialize the Fake object.

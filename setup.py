@@ -7,7 +7,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setuptools.setup(
     name='bl-bfg',
-    version='0.5.4.5',
+    version='0.5.4.6',
     author='Justin Angel',
     author_email='justin@arch4ngel.ninja',
     description='A simple password guessing framework.',
@@ -32,5 +32,6 @@ setuptools.setup(
         'lxml >= 4.6.4',
         'pyyaml',
         'xmltodict',
-        'dict-toolbox']
+        'dict-toolbox',
+        'pydantic']
 )

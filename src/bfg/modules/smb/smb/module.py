@@ -66,6 +66,8 @@ class Module(BLModule):
                     twitter='@ImposterKeanu'))
         ]
 
+    verified_functional = True
+
     def __init__(self, server_ip, server_name, server_port,
             client_name, default_domain):
         '''Initialize the SMB Callback.

@@ -23,6 +23,8 @@ class Module(HTTPModule):
                     twitter='@ImposterKeanu'))
         ]
 
+    verified_functional = True
+
     def __call__(self, username, password, *args, **kwargs):
         '''Make the module callable.
 

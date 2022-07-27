@@ -51,6 +51,7 @@ class Module(HTTPModule):
                     company='Black Hills Information Security',
                     twitter='@ImposterKeanu'))
         ]
+    verified_functional = False
 
     def __call__(self, username, password, *args, **kwargs):
 

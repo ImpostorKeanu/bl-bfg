@@ -8,7 +8,8 @@ from bfg.shortcuts.http import HTTPModule, handleUA
 
 class Module(HTTPModule):
 
-    description = brief_description = 'OWA 2016 web interface'
+    brief_description = description = 'OWA 2016 web interface'
+
     contributors = [
             dict(
                 name='Justin Angel [Creator]',
@@ -16,6 +17,13 @@ class Module(HTTPModule):
                     company='Black Hills Information Security',
                     twitter='@ImposterKeanu'))
         ]
+
+    verified_functional = True
+
+    notes = [
+        'Be sure to include the proper path in --url, '
+        'commonly: /owa/auth.owa',
+    ]
 
     @handleUA
     def __call__(self,username,password,*args,**kwargs):

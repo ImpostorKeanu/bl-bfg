@@ -29,6 +29,7 @@ class Module(HTTPModule):
                     company='Black Hills Information Security',
                     twitter='@ImposterKeanu'))
         ]
+    verified_functional = True
 
     def __post_init__(self, *args, **kwargs):
 

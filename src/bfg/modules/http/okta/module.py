@@ -21,8 +21,7 @@ the artifacts required to support the attack: cookies_url, and
 cookies_referer_url. WARNING: If valid credentials are already
 available, testing them through BFG is recommended to ensure
 that changes to Okta's authentication process have not broken this
-module (things feel complicated).
-'''
+module (things feel complicated).'''
 
 # ===========
 # HELP VALUES
@@ -39,7 +38,7 @@ COOKIES_URL_HELP = \
 'while proxying through Burp to identify this value. FORMATTING NOTE: Update the ' \
 'URL to match the following while replacing the username and domain values ' \
 'with template strings: https://<target>.okta.com/login/login.htm?fromURI=....' \
-'....{USERNAME}%2540{DOMAIN}......'
+'....{USERNAME}%%2540{DOMAIN}......'
 
 REFERER_URL_HELP = \
 'The URL that should be embedded in the HTTP referer header when ' \
@@ -66,6 +65,18 @@ class Module(HTTPModule):
         ] + \
         http_args.getDefaults('url', invert=True)
 
+    verified_functional = True
+
+    notes = [
+        'You\'ll need to get the value for --cookies-url by proxying '
+        'an auth request through Burp.',
+        'The --cookies-url format will be approximately: https://'
+        '<target>.okta.com/login/login.htm?fromURI=<encoded_param>'
+        '...username%2540domain....',
+        'Update the above value with template strings for the username '
+        'and domain, like https://<target>.okta.com/login/login.htm?'
+        'fromURI=<encoded_param>{USERNAME}%2540{DOMAIN}<trailing_params>'
+    ]
 
     def __post_init__(self, cookies_url, cookies_referrer_url,
             *args, **kwargs):

@@ -2,7 +2,9 @@ import argparse
 import inspect
 import re
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any
+from bfg.breakers import BreakerProfile
+from copy import copy
 
 class ContributorModel(BaseModel):
     '''Define contributor data structure.'''
@@ -34,6 +36,9 @@ class ModuleAttributes(BaseModel):
 
     notes: Optional[List[str]] = Field(default_factory=list)
     'List of string notes to display.'
+
+    breakers: Optional[List[BreakerProfile]] = Field(default_factory=list)
+    'List of breakers applicable to the model.'
 
 def bindSignatureArgs(func, src:dict) -> dict:
     '''
@@ -121,6 +126,9 @@ class Module:
 
     # List of string notes
     notes = list()
+
+    # List of breakers
+    breaker_profiles = list()
 
     @classmethod
     def initialize(cls, args):
@@ -256,5 +264,16 @@ class Module:
         parser.add_argument('--database', '-db',
             required=True,
             help='Database to target.')
+        if cls.breaker_profiles:
+            b_group = parser.add_argument_group(
+                'Breaker Parameters',
+                'Parameters that configure when breakers should be engaged. Note that '
+                'all "reset_spec" parameters expect to receive a value formatted like '
+                'jitter inputs, e.g. "10m" for ten minutes.')
+            for bp in cls.breaker_profiles:
+                for k,v in bp.argparse_kwargs.items():
+                    vc = copy(v)
+                    nof = vc.pop('name_or_flags')
+                    b_group.add_argument(*nof, **vc)
 
         return parser

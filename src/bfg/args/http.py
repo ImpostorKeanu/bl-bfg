@@ -63,6 +63,36 @@ def allow_redirects(name_or_flags=('--allow-redirects',),
             'Default: %(default)s'):
     pass
 
+@argument
+def m_conn_errors(name_or_flags=('--max-connection-errors',),
+        type=int,
+        help='Maximum number of connection errors that can occur '
+        'before terminating the attack. Default: %(default)s',
+        default=20):
+    pass
+
+@argument
+def conn_err_reset_spec(name_or_flags=('--connection-error-reset-spec',),
+        help='Window of time that must pass before the count of '
+            'connection errors will be reset. Default: %(default)s',
+        default='10m'):
+    pass
+
+@argument
+def max_err_lockouts(name_or_flags=('--max-lockout-errors',),
+        type=int,
+        help='Maximum number of lockout errors that can occur '
+            'before terminating the attack. Default: %(default)s',
+        default=5):
+    pass
+
+@argument
+def lock_err_spec(name_or_flags=('--lockout-error-reset-spec',),
+        help='Window of time that must pass before the count of '
+            'lockout errors are reset. Default: %(default)s',
+        default='10m'):
+    pass
+
 URL = url()
 PROXIES = proxies()
 HEADERS = headers()

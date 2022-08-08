@@ -5,6 +5,9 @@ import warnings
 from urllib.parse import urlparse
 import re
 from bruteloops.db_manager import csv_split
+from bfg.breakers import (
+    ConnectionErrorBreakerProfile,
+    LockoutErrorBreakerProfile)
 from functools import wraps
 from random import randint
 from inspect import getargspec
@@ -62,6 +65,11 @@ def handleUA(f):
 class HTTPModule(Module):
 
     args = defaultHTTPArgs()
+
+    breaker_profiles = [
+        ConnectionErrorBreakerProfile,
+        LockoutErrorBreakerProfile
+    ]
 
     def __init__(self, url, proxies, headers, verify_ssl, user_agent,
             allow_redirects, *args, **kwargs):

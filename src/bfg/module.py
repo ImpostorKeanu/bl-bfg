@@ -127,8 +127,6 @@ class Module:
         '''Initialize and return the underlying brute force module.
         '''
 
-        print('Initializing module!')
-
         # Translate the argparse arguments to a dictionary
         args = vars(args)
 

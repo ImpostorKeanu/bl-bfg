@@ -6,9 +6,8 @@ from sys import exit
 import argparse
 from bruteloops.args import timezone_parser
 from bruteloops.db_manager import *
-from bruteloops.jitter import Jitter
 from bruteloops.brute import BruteForcer
-from bruteloops.config import Config
+from bruteloops.models import Config
 from bruteloops.logging import getLogger, GENERAL_EVENTS
 from pathlib import Path
 from yaml import load as loadYml, SafeLoader
@@ -512,45 +511,40 @@ if __name__ == '__main__':
         # ============================
 
         # Initialize a BruteLoops.config.Config object
-        config = Config()
-    
-        # Initialize the callback from the module bound to the argument
-        # parser when the interface was being built
-        config.authentication_callback = args.module.initialize(args)
-    
-        # Authentication Configurations
-        config.process_count = args.process_count
-        config.max_auth_tries = args.max_auth_tries
-        config.stop_on_valid = args.stop_on_valid
-    
-        # Jitter Configurations
-        config.authentication_jitter = Jitter(min=args.auth_jitter_min,
-                max=args.auth_jitter_max)
-        config.max_auth_jitter = Jitter(min=args.threshold_jitter_min,
-                max=args.threshold_jitter_max)
-    
-        # Output Configurations
-        config.db_file = args.database
-    
-        # Log destinations
-        config.log_file = args.log_file
-        config.log_stdout = args.log_stdout
-    
-        # Log Levels
-        config.log_level = args.log_level
+        conf_kwargs = dict(
+            authentication_callback = args.module.initialize(args),
+            process_count = args.process_count,
+            max_auth_tries = args.max_auth_tries,
+            stop_on_valid = args.stop_on_valid,
+            db_file = args.database,
+            log_file = args.log_file,
+            log_stdout = args.log_stdout,
+            log_level = args.log_level,
+            timezone = args.timezone,
+            # Configure an exception handler for keyboard interrupts    
+            exception_handlers = [dict(
+                exception_class = KeyboardInterrupt,
+                handler = handle_keyboard_interrupt)]
+        )
 
-        config.timezone = timezone
+        if args.auth_jitter_min and args.auth_jitter_max:
+            conf_kwargs['authentication_jitter'] = dict(
+                min=args.auth_jitter_min,
+                max=args.auth_jitter_max)
+
+        if args.threshold_jitter_min and args.threshold_jitter_max:
+            conf_kwargs['max_auth_jitter'] = dict(
+                min=args.threshold_jitter_min,
+                max=args.threshold_jitter_max)
 
         if hasattr(args, 'blackout_start') and \
                 hasattr(args, 'blackout_stop'):
-            config.blackout_start = args.blackout_start
-            config.blackout_stop = args.blackout_stop
-    
-        # Configure an exception handler for keyboard interrupts    
-        config.exception_handlers={KeyboardInterrupt:handle_keyboard_interrupt}
-        
-        # Always validate the configuration.
-        config.validate()
+
+            conf_kwargs['blackout'] = dict(
+                    start=args.blackout_start,
+                    stop=args.blackout_stop)
+
+        config = Config(**conf_kwargs)
         
         try:
         

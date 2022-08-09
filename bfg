@@ -12,6 +12,10 @@ from bruteloops.logging import getLogger, GENERAL_EVENTS
 from pathlib import Path
 from yaml import load as loadYml, SafeLoader
 from sys import stderr, exit, argv
+from bfg.yaml_models import (
+     ManageDB as YAMLManageDB,
+     BruteForce as YAMLBruteForce,
+     KitchenSink as YAMLKitchenSink)
 from bfg import parser as modules_parser
 from bfg.cli.manage_db import (
     parser as db_parser,
@@ -294,6 +298,7 @@ if __name__ == '__main__':
 
     # Base CLI subparser
     cli_parser = subparsers.add_parser('cli',
+        aliases=('c','cmd',),
         help='Supply BFG inputs via command line.')
     cli_parser.set_defaults(parser=cli_parser)
     cli_subparsers = cli_parser.add_subparsers(
@@ -303,6 +308,7 @@ if __name__ == '__main__':
 
     # Database management
     db_sp = cli_subparsers.add_parser('manage-db',
+        aliases=('m','db',),
         parents=[db_parser, timezone_parser],
         description='Manage the attack database.',
         help='Manage the attack database.')
@@ -310,6 +316,7 @@ if __name__ == '__main__':
 
     # Brute force
     brute_sp = cli_subparsers.add_parser('brute-force',
+        aliases=('b','bf',),
         parents=[modules_parser, timezone_parser],
         description='Perform a brute-force attack.',
         help='Perform a brute-force attack.')
@@ -320,13 +327,36 @@ if __name__ == '__main__':
     # YML INPUT SUBCOMMANDS
     # =====================
 
-    yaml_parser = subparsers.add_parser('yaml',
+    yaml_parsers = subparsers.add_parser('yaml',
+        aliases=('y','yml',),
+        description='YAML Inputs',
+        help='Interact with BFG via YAML file.')
+
+    yaml_subparsers = yaml_parsers.add_subparsers(
+        title='YAML Inputs',
+        description='description')
+
+    # Run from YAML file
+    yaml_run_sp = yaml_subparsers.add_parser('run',
+        aliases=('r',),
         description='Supply BFG inputs via YAML file. '
             'See brute_sample.yml for a working example.',
-        help='Supply BFG inputs via YAML file.')
-    yaml_parser.add_argument('yaml_file',
+        help='Run BFG via YAML file.')
+    yaml_run_sp.add_argument('yaml_file',
         help='YAML file containing db/attack configuration parameters.')
-    yaml_parser.set_defaults(mode='yaml')
+    yaml_run_sp.set_defaults(mode='run-yaml')
+
+    # Dump YAML templates
+    yaml_temp_sp = yaml_subparsers.add_parser('templates',
+        aliases=('t', 'temp',),
+        description='Dump YAML input templates.',
+        help='Dump YAML input templates')
+
+    yaml_temp_sp.add_argument('template',
+        choices=('manage-db', 'brute-force', 'kitchen-sink',),
+        help='YAML template to dump.')
+
+    yaml_temp_sp.set_defaults(mode='dump-yaml')
 
     # =====================
     # PARSE INPUT ARGUMENTS
@@ -359,11 +389,26 @@ if __name__ == '__main__':
     if timezone:
         db_logger, brute_logger = initLoggers(timezone)
 
+    # ===================
+    # DUMP YAML TEMPLATES
+    # ===================
+
+    if args.mode == 'dump-yaml':
+
+        model = {
+            'manage-db':YAMLManageDB,
+            'brute-force':YAMLBruteForce,
+            'kitchen-sink':YAMLKitchenSink
+        }[args.template]
+
+        print(model.dump())
+        exit()
+
     # =====================
     # HANDLE YAML ARGUMENTS
     # =====================
 
-    if args.mode == 'yaml':
+    if args.mode == 'run-yaml':
 
         # =====================
         # HANDLE THE FILE INPUT
@@ -427,41 +472,25 @@ if __name__ == '__main__':
             # ====================================
             # TRANSLATE YAML TO ARGPARSE ARGUMENTS
             # ====================================
+
+            mod_args = bf_args.pop('module')
+            mod_name = mod_args.pop('name')
+            mod_args = mod_args['args']
     
             for k,v in bf_args.items():
-    
-                if k != 'module':
 
-                    # ====================
-                    # NON-MODULE ARGUMENTS
-                    # ====================
+                # ====================
+                # NON-MODULE ARGUMENTS
+                # ====================
 
-                    # Capture non-module arguments
-                    brute_cli_args += processYmlArg(
-                        param=k,
-                        arg=v)
-    
-                else:
-    
-                    # ===============
-                    # MODULE ARGUMENT
-                    # ===============
+                # Capture non-module arguments
+                brute_cli_args += processYmlArg(param=k, arg=v)
 
-                    name, args = v.get('name'), v.get('args', {})
-    
-                    if not name:
-    
-                        raise ValueError(
-                            f'"name" field must be defined under "module".')
-   
-                    # Append the module name to the argument list
-                    brute_cli_args.append(name)
-                    
-                    for ik, iv in args.items():
+            brute_cli_args.append(mod_name)
 
-                        brute_cli_args += processYmlArg(
-                            param=ik,
-                            arg=iv)
+            for k, v in mod_args.items():
+
+                brute_cli_args += processYmlArg(param=k, arg=v)
 
             brute_cli_args.append(db_arg)
             args = brute_sp.parse_args(brute_cli_args)

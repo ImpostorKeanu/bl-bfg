@@ -1,4 +1,5 @@
 from bruteloops.args import *
+from . import yaml_models
 from pathlib import Path
 from importlib.util import spec_from_file_location, module_from_spec
 from importlib import import_module

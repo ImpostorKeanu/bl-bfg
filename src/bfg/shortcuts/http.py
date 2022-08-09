@@ -67,8 +67,8 @@ class HTTPModule(Module):
     args = defaultHTTPArgs()
 
     breaker_profiles = [
-        ConnectionErrorBreakerProfile,
-        LockoutErrorBreakerProfile
+        ConnectionErrorBreakerProfile(),
+        LockoutErrorBreakerProfile()
     ]
 
     def __init__(self, url, proxies, headers, verify_ssl, user_agent,

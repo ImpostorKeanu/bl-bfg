@@ -19,12 +19,11 @@ class Module(BLModule):
                     twitter='@ImposterKeanu'))
         ]
     verified_functional = True
+    checks_lockout = True
+    breaker_profiles = [LockoutErrorBreakerProfile()]
 
     def __init__(self, *args, **kwargs):
         pass
 
     def __call__(self, username, password):
-        'Check the provided username and password values'
-
         raise LockoutError('Intentional lockout event!')
-   

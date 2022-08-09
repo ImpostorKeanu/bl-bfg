@@ -168,8 +168,7 @@ def parseYml(f, key_checks:list=None) -> dict:
     return values
 
 def get_user_input(m:str) -> str:
-    '''
-    Simple input loop expecting either a "y" or "n" response.
+    '''Simple input loop expecting either a "y" or "n" response.
 
     Args:
         m: String message that will be displayed to the user.
@@ -482,7 +481,7 @@ if __name__ == '__main__':
 
         run_db_command(parser, db_logger)
 
-        # This is bollucks.....
+        # This is bollocks.....
         # Quick fix to correct a bug where associations don't
         # occur between username and password values
         manager = Manager(args.database)
@@ -506,11 +505,10 @@ if __name__ == '__main__':
                 'provide an attack module from above!\n\n')
             exit()
 
-        # ============================
-        # LAUNCH THE BruteLoops ATTACK
-        # ============================
+        # ========================
+        # PREPARE ATTACK ARGUMENTS
+        # ========================
 
-        # Initialize a BruteLoops.config.Config object
         module = args.module.initialize(args)
         conf_kwargs = dict(
             authentication_callback = module,
@@ -522,13 +520,14 @@ if __name__ == '__main__':
             log_stdout = args.log_stdout,
             log_level = args.log_level,
             timezone = timezone,
-            # Configure an exception handler for keyboard interrupts    
             exception_handlers = [dict(
                 exception_class = KeyboardInterrupt,
                 handler = handle_keyboard_interrupt)],
-            # Configure breakers
-            #breakers = getattr(module, 'breakers', list())
         )
+
+        # =====================
+        # JITTER CONFIGURATIONS
+        # =====================
 
         if args.auth_jitter_min and args.auth_jitter_max:
             conf_kwargs['authentication_jitter'] = dict(
@@ -540,6 +539,10 @@ if __name__ == '__main__':
                 min=args.threshold_jitter_min,
                 max=args.threshold_jitter_max)
 
+        # ======================
+        # BLACKOUT CONFIGURATION
+        # ======================
+
         if hasattr(args, 'blackout_start') and \
                 hasattr(args, 'blackout_stop'):
 
@@ -547,7 +550,13 @@ if __name__ == '__main__':
                     start=args.blackout_start,
                     stop=args.blackout_stop)
 
-        config = Config(**conf_kwargs)
+        # =========================
+        # FINALIZE AND BEGIN ATTACK
+        # =========================
+
+        config = Config(
+            **conf_kwargs,
+            breakers=module.breaker_profiles)
         
         try:
         

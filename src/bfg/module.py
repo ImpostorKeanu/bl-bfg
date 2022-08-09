@@ -2,9 +2,12 @@ import argparse
 import inspect
 import re
 from pydantic import BaseModel, Field
-from typing import List, Optional, Any
-from bfg.breakers import BreakerProfile
-from copy import copy
+from typing import List, Optional, Any, Union
+from bfg.errors import LockoutError
+from bfg.breakers import (
+    BaseBreaker,
+    ThresholdBreakerProfile,
+    LockoutErrorBreakerProfile)
 
 class ContributorModel(BaseModel):
     '''Define contributor data structure.'''
@@ -14,9 +17,6 @@ class ContributorModel(BaseModel):
 
 class ModuleAttributes(BaseModel):
     '''Attrubtes profile for all modules.'''
-
-    #name: str
-    #'Module name.'
 
     brief_description: str
     'Brief description that will be displayed in the help menu.'
@@ -30,14 +30,23 @@ class ModuleAttributes(BaseModel):
     references: List[str] = Field(default_factory=list)
     'List of string references for the module.'
 
-    verified_functional: Optional[bool] = Field(False)
+    verified_functional: Optional[bool] = False
     'Boolean flag that determines if the module has been verified ' \
     'as functional.'
+
+    checks_lockout: Optional[bool] = False
+    'Determines if the module raises bfg.errors.LockoutError when ' \
+    'a logic suspects that a lockout event has occurred for a ' \
+    'username.'
 
     notes: Optional[List[str]] = Field(default_factory=list)
     'List of string notes to display.'
 
-    breakers: Optional[List[BreakerProfile]] = Field(default_factory=list)
+    breaker_profiles: Optional[
+            Union[
+                List[BaseBreaker],
+                List[ThresholdBreakerProfile]
+            ]] = Field(default_factory=list)
     'List of breakers applicable to the model.'
 
 def bindSignatureArgs(func, src:dict) -> dict:
@@ -106,34 +115,41 @@ class Module:
     valid credentials: 1 means success, 0 means failure.
     '''
 
-    # Name for the module that'll be shown in logging
-    #name = None
-
-    # Brief description to display in the help menu
     brief_description = None
+    'Brief description to display in the help menu.'
 
-    # Description of the module that'll be shown in the interface
     description = None
+    'Description of the module shown in the interface'
 
-    # List of dictionaries describing contributors
     contributors = list()
+    'List of dictionaries describing contributors'
 
-    # List of string references
     references = list()
+    'List of string references'
 
-    # Boolean determining if the module has been verified as functional
     verified_functional = False
+    'Boolean determining if the module has been verified as functional.'
 
-    # List of string notes
     notes = list()
+    'List of string notes.'
 
-    # List of breakers
     breaker_profiles = list()
+    'List of breaker profiles.'
+
+    checks_lockout = False
+    ('Determines if the module raises LockoutError exceptions when '
+    'lockouts are detected')
 
     @classmethod
     def initialize(cls, args):
         '''Initialize and return the underlying brute force module.
         '''
+
+        # Obtain breakers
+        cls.cleanse_breaker_profiles()
+        cls.breaker_profiles = [
+            b.to_breaker(args) for b in cls.breaker_profiles
+        ]
 
         # Translate the argparse arguments to a dictionary
         args = vars(args)
@@ -190,24 +206,59 @@ class Module:
         return '.'.join(cls.__module__.split('.')[-3:][:2])
 
     @classmethod
+    def cleanse_breaker_profiles(cls):
+        '''Cleanse breaker profiles for modules by removing those
+        that do not align with module configurations.
+
+        This provides a method of removing breakers that are applied
+        via inheritance.
+
+        Currently, it only checks for the "checks_lockout" attribute,
+        removing any breaker targeting "LockoutError" classes. This
+        ensures that modules don't misleadingly appear to check for
+        lockouts. This could lead an operator to assume that lockout
+        events are not occurring, resulting in mass lockout scenarios.
+        '''
+
+        # ======================================
+        # PREPARE MODULE ATTRIBUTES AS NECESSARY
+        # ======================================
+        
+        for i in range(0, len(cls.breaker_profiles)):
+
+            # ============================================
+            # REMOVE LOCKOUT BREAKERS FROM INVALID MODULES
+            # ============================================
+
+            # Only modules with "checks_lockout" attribute should
+            # accept this breaker profile.
+
+            if not cls.checks_lockout and LockoutError in (cls
+                    .breaker_profiles[i]
+                    .breaker_kwargs
+                    .exception_classes):
+
+                # Remove from the module
+                del(cls.breaker_profiles[i])
+
+    @classmethod
     def build_interface(cls,
             subparsers: 'Argparse subparsers that will receive the subcommand') \
                     -> argparse.ArgumentParser:
         '''Use the inspect module to iterate over each parameter
         declared in __init__ and build an interface via argparse.
         '''
-        
+
+        cls.cleanse_breaker_profiles()
+
         # ==========================
         # VALIDATE MODULE ATTRIBUTES
         # ==========================
 
-        attrs = ModuleAttributes(
-            **{
-                k:getattr(cls, k) for k in
-                ModuleAttributes.__fields__.keys()
-                if hasattr(cls, k)
-            }
-        )
+        attrs = ModuleAttributes(**{
+            k:getattr(cls, k) for k in
+            ModuleAttributes.__fields__.keys()
+            if hasattr(cls, k)})
 
         # ==============
         # PREPARE EPILOG
@@ -264,16 +315,38 @@ class Module:
         parser.add_argument('--database', '-db',
             required=True,
             help='Database to target.')
-        if cls.breaker_profiles:
+
+        # ======================
+        # HANDLE MODULE BREAKERS
+        # ======================
+
+        if attrs.breaker_profiles:
+
+            # ====================================
+            # PREPARE ARGUMENT GROUP FOR INTERFACE
+            # ====================================
+
             b_group = parser.add_argument_group(
                 'Breaker Parameters',
                 'Parameters that configure when breakers should be engaged. Note that '
                 'all "reset_spec" parameters expect to receive a value formatted like '
                 'jitter inputs, e.g. "10m" for ten minutes.')
-            for bp in cls.breaker_profiles:
-                for k,v in bp.argparse_kwargs.items():
-                    vc = copy(v)
-                    nof = vc.pop('name_or_flags')
-                    b_group.add_argument(*nof, **vc)
+
+            for bp in attrs.breaker_profiles:
+
+                # ==============================================
+                # DERIVE BREAKER ARGUMENTS FROM BREAKER PROFILES
+                # ==============================================
+
+                for v in bp.argparse_kwargs:
+
+                    v = v.dict()
+                    nof = v.pop('name_or_flags')
+
+                    # argparse can't handle the "handles" attribute
+                    del(v['handles'])
+
+                    # Add the argument
+                    b_group.add_argument(*nof, **v)
 
         return parser

@@ -80,21 +80,20 @@ def bindSignatureArgs(func, src:dict) -> dict:
     return dest
         
 class Module:
-
-    '''# Base Module Class
+    '''Base Module Class
 
     This class serves as a template for brute force modules. It builds
     the interface subcommands by inspecting the __init__ method while
     also enforcing restrictions on the __call__ method to ensure
     BruteLoops can make authentication callbacks.
 
-    # The __init__ Method
+    The `__init__` Method:
 
     This method can be used to set static values supporting a brute
     force module. It's useful in situations when an upstream server
     needs to be targeted.
 
-    # The __call__ Method
+    The `__call__` Method:
 
     This method is called for each authentication attempt by BruteLoops
     and should check the validity of a username and password. The method
@@ -141,8 +140,20 @@ class Module:
     'lockouts are detected')
 
     @classmethod
-    def initialize(cls, args):
+    def initialize(cls, args:argparse.Namespace) -> 'Module':
         '''Initialize and return the underlying brute force module.
+
+        Args:
+          args: argparse.Namespace instance from which the module
+            configurations will be derived.
+
+        Notes:
+          - Called by the primary brute.py application just before
+            configuring the bruteloops.models.Config instance and
+            starting the attack.
+          - This method configures all breaker profiles.
+          - When defined, this module calls the `__post_init__` method
+            on the derived function.
         '''
 
         # Obtain breakers
@@ -172,6 +183,12 @@ class Module:
 
     @classmethod
     def validate(cls):
+        '''Validates module configuration.
+
+        Notes:
+          - This is called by bfg.__init__ as the module is being
+            loaded.
+        '''
 
         # ==============================
         # VALIDATING THE __call__ METHOD
@@ -201,6 +218,9 @@ class Module:
     @classmethod
     def get_handle(cls):
         '''Return a simple string to use as a module identifier.
+
+        Notes:
+          - Format returned: protocol.module_directory_name
         '''
 
         return '.'.join(cls.__module__.split('.')[-3:][:2])
@@ -242,11 +262,13 @@ class Module:
                 del(cls.breaker_profiles[i])
 
     @classmethod
-    def build_interface(cls,
-            subparsers: 'Argparse subparsers that will receive the subcommand') \
-                    -> argparse.ArgumentParser:
+    def build_interface(cls, subparsers: argparse.ArgumentParser):
         '''Use the inspect module to iterate over each parameter
         declared in __init__ and build an interface via argparse.
+
+        Args:
+          subparsers: Argparse subparsers that will receive the
+            subcommand. Arguments are added to the supplied parser.
         '''
 
         cls.cleanse_breaker_profiles()

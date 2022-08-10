@@ -1,5 +1,6 @@
 import re
 import inspect
+from bfg.errors import LockoutError
 from bfg.data import loadAzureSSOSoap
 from bfg.args import http as http_args, argument
 from requests import Session
@@ -99,8 +100,12 @@ class Session(Session):
         if error_code:
 
             error_code = error_code.groups()[0]
-            outcome, username_valid, events = \
+            outcome, username_valid, events, locked_out = \
                 lookupCode(resp.status_code, error_code)
+
+            if locked_out:
+                raise LockoutError(
+                    f'Potentially Locked Account: {username}')
 
             if events:
                 events[0] += f' - {credential}'
@@ -176,6 +181,8 @@ class Module(HTTPModule):
                 additional=dict(
                     company='Black Hills Information Security')),
         ]
+
+    checks_lockout = True
 
     references = [
             'Gerenios - Client IDs - https://github.com/Gerenios/' \

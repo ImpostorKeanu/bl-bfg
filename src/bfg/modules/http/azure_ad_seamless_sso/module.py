@@ -1,6 +1,7 @@
 import re
 import inspect
 from bfg.data import loadAzureSSOSoap
+from bfg.errors import LockoutError
 from datetime import datetime, timedelta
 from xmltodict import parse as xmltodict
 from xml.sax.saxutils import escape as xEscape
@@ -128,8 +129,12 @@ class Session(Session):
             except:
                 pass
 
-            outcome, username_valid, events = \
+            outcome, username_valid, events, locked_out = \
                 lookupCode(resp.status_code, error_code)
+
+            if locked_out:
+                raise LockoutError(
+                    f'Potentially Locked Account: {username}')
 
             if events:
                 events[0] += f' - {credential}'
@@ -153,6 +158,7 @@ class Module(HTTPModule):
     brief_description = 'Azure Active Directory AD Seamless SSO'
     description = 'Brute force the Azure AD SSO endpoint.'
     args = [url()]+http_args.getDefaults('url',invert=True)
+    checks_lockout = True
     verified_functional = False
     contributors = [
             dict(

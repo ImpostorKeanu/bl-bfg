@@ -66,10 +66,21 @@ class HTTPModule(Module):
 
     args = defaultHTTPArgs()
 
-    breaker_profiles = [
-        ConnectionErrorBreakerProfile(),
-        LockoutErrorBreakerProfile()
-    ]
+    @classmethod
+    def build_interface(cls, *args, **kwargs):
+        '''Create standard breakers for HTTP modules.
+
+        Notes:
+          - Calls Module.build_interface after binding breaker
+            profiles.
+        '''
+
+        cls.breaker_profiles += [
+            ConnectionErrorBreakerProfile(),
+            LockoutErrorBreakerProfile()
+        ]
+
+        return super().build_interface(*args, **kwargs)
 
     def __init__(self, url, proxies, headers, verify_ssl, user_agent,
             allow_redirects, *args, **kwargs):

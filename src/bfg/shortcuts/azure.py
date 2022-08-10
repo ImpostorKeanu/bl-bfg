@@ -1,4 +1,5 @@
 from bfg.defaults import *
+from bfg.errors import LockoutError
 from random import randint
 import re
 
@@ -6,7 +7,7 @@ import re
 #ERROR_CODE_RE = re.compile('.+(AADSTS[0-9]{5,})')
 ERROR_CODE_RE = re.compile('.+(AADSTS[0-9]+)')
 
-def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
+def lookupCode(status_code:int, error_code:str) -> (int, bool, [str], bool):
     '''Accept an HTTP status code and Azure error code to determine
     the outcome of an authentication request.
 
@@ -22,6 +23,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
           int determining if authentication was successful
           bool determining if the username is valid
           [str] a list of log events
+          bool determining if a lockout event occurred
         )
     '''
 
@@ -41,7 +43,17 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
             message += 'No graph reason, indiciative of active/' \
                 'accessible account'
 
-        return CRED_VALID, USERNAME_VALID, [message]
+        return CRED_VALID, USERNAME_VALID, [message], False
+
+    elif error_code == 'AADSTS120014':
+
+        # ==============================
+        # ANOTHER POTENTIAL LOCKOUT CODE
+        # ==============================
+
+        message += 'INVALID CREDENTIALS - Potentially Locked Account'
+
+        return CRED_FAILED, USERNAME_VALID, [message], True
 
     elif error_code == 'AADSTS50053':
 
@@ -50,10 +62,10 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
         # =======================================
 
         message += 'INVALID CREDENTIALS - ' \
-            f'Smart Lock - Will ' \
-            'attempt credentials during next iteration.'
+            'Smart Lock - Will attempt credentials during next '\
+            'iteration.'
 
-        return CRED_FAILED, USERNAME_VALID, [message]
+        return CRED_FAILED, USERNAME_VALID, [message], True
 
     elif error_code == 'AADSTS50034':
 
@@ -63,7 +75,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
 
         message += 'User does not exist.'
 
-        return CRED_FAILED, USERNAME_INVALID, [message]
+        return CRED_FAILED, USERNAME_INVALID, [message], False
 
     elif error_code == 'AADSTS90019':
 
@@ -74,7 +86,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
         message += 'No tenant-identifying information supplied in ' \
             'the authentication data, e.g. domain name.'
 
-        return CRED_FAILED, USERNAME_INVALID, [message]
+        return CRED_FAILED, USERNAME_INVALID, [message], False
 
     elif error_code == 'AADSTS50056':
 
@@ -85,7 +97,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
         message += 'User exists but does not have a password in ' \
             'Azure AD'
 
-        return CRED_FAILED, USERNAME_VALID, [message]
+        return CRED_FAILED, USERNAME_VALID, [message], False
 
     elif error_code == 'AADSTS80014':
 
@@ -95,7 +107,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
 
         message += 'User exists but pass-through time exceeded.'
 
-        return CRED_FAILED, USERNAME_VALID, [message]
+        return CRED_FAILED, USERNAME_VALID, [message], False
 
     elif error_code in VALID_USERNAME_CODES:
 
@@ -103,7 +115,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
         # PASSWORD INVALID, BUT USERNAME IS VALID
         # =======================================
 
-        return CRED_INVALID, USERNAME_VALID, None
+        return CRED_INVALID, USERNAME_VALID, None, False
 
     elif error_code in FATAL_CODES:
 
@@ -125,7 +137,7 @@ def lookupCode(status_code:int, error_code:str) -> (int, bool, [str]):
         if error_code in ERROR_CODES:
             message += '-> {}'.format(ERROR_CODES[error_code])
 
-        return CRED_FAILED, True, [message]
+        return CRED_FAILED, True, [message], False
 
 def getRandomListItem(lst:list):
     '''Return a random element from lst.

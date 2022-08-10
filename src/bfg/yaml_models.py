@@ -111,7 +111,8 @@ class YamlModelMixin:
             cls.handle_properties(
                 props=schema.get('properties', dict()),
                 required=schema.get('required', list())),
-            Dumper=SafeDumper)
+            Dumper=SafeDumper,
+            sort_keys=False)
 
 class Root(BaseModel):
 

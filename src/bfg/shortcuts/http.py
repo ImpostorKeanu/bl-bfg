@@ -62,6 +62,29 @@ def handleUA(f):
 
     return wrapper
 
+def append_or_naw(lst:list, cls:object, *args, **kwargs):
+    '''Append an instance of `cls` to `lst` if it doesn't already contain
+    one.
+
+    Args:
+      lst: List to check and append to.
+      cls: Class to check for.
+
+    Notes:
+      - Additional `*args` and `**kwargs` passed to this function are
+        used to initialize new instances of `cls`.
+      - This function mutates lst by appending instances of cls.
+    '''
+
+    # Check lst
+    for v in lst:
+        if isinstance(v, cls):
+            # naw...an instance already exists
+            return
+
+    # append
+    lst.append(cls(*args, **kwargs))
+
 class HTTPModule(Module):
 
     args = defaultHTTPArgs()
@@ -75,10 +98,13 @@ class HTTPModule(Module):
             profiles.
         '''
 
-        cls.breaker_profiles += [
-            ConnectionErrorBreakerProfile(),
-            LockoutErrorBreakerProfile()
-        ]
+        for klass in (
+                ConnectionErrorBreakerProfile,
+                LockoutErrorBreakerProfile,):
+
+            append_or_naw(
+                lst=cls.breaker_profiles,
+                cls=klass)
 
         return super().build_interface(*args, **kwargs)
 

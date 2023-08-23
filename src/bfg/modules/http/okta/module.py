@@ -144,7 +144,7 @@ class Module(HTTPModule):
             # update the cookies_url value
             cookies_url = self.cookies_url.replace('{USERNAME}',
                 groups[0])
-            cookies_url = self.cookies_url.replace('{DOMAIN}',
+            cookies_url = cookies_url.replace('{DOMAIN}',
                 groups[2])
 
         except Exception as e:

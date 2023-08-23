@@ -7,7 +7,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setuptools.setup(
     name='bl-bfg',
-    version='1.0.0',
+    version='1.0.1',
     author='Justin Angel',
     author_email='justin@arch4ngel.ninja',
     description='A password guessing framework.',
@@ -22,7 +22,7 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: POSIX :: Linux',
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.9.2',
     scripts=['bfg'],
     package_data={'bfg.datasets':['*.txt', '*.yaml', '*.xml']},
     install_requires=[

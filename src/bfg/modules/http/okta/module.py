@@ -170,7 +170,7 @@ class Module(HTTPModule):
         # =============================
 
         session = requests.Session()
-        session.get(cookies_url, headers=headers)
+        session.get(cookies_url, headers=headers, proxies=self.proxies)
 
         # ===================================
         # BUILD REQUEST DATA AND MAKE REQUEST

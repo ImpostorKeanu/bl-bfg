@@ -194,14 +194,22 @@ class Module(HTTPModule):
         # Update headers again. Referer header should match the cookies_url
         headers['referer'] = cookies_url
     
-        # make the request
-        resp = session.post(self.url,
-                json=data,
-                headers=headers,
-                verify=self.verify_ssl,
-                allow_redirects=False,
-                proxies=self.proxies)
+        try:
+            # make the request
+            resp = session.post(self.url,
+                    json=data,
+                    headers=headers,
+                    verify=self.verify_ssl,
+                    allow_redirects=False,
+                    proxies=self.proxies)
 
+        except ConnectionError or TimeOut:
+            return dict(
+                outcome=-1,
+                username=username,
+                password=password,
+                events=['Connection Error or Timeout'])
+        
         # ===================================
         # CHECK FOR SUCCESSFUL AUTHENTICATION
         # ===================================

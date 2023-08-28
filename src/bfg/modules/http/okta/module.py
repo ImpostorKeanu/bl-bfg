@@ -203,7 +203,7 @@ class Module(HTTPModule):
                     allow_redirects=False,
                     proxies=self.proxies)
 
-        except ConnectionError or TimeOut:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return dict(
                 outcome=-1,
                 username=username,

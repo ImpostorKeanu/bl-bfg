@@ -102,8 +102,8 @@ class Module(HTTPModule):
         self.server = groups['server']
 
         # Global Protect requires a specific Content-Type header
-        if not 'Content-Type' in headers:
-            headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        if not 'Content-Type' in self.headers:
+            self.headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
         sess = requests.Session()
 

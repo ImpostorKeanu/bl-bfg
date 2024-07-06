@@ -10,7 +10,7 @@ from bfg.breakers import (
     LockoutErrorBreakerProfile)
 from functools import wraps
 from random import randint
-from inspect import getargspec
+from inspect import getfullargspec
 import pdb
 
 warnings.filterwarnings('ignore')
